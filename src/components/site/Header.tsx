@@ -20,7 +20,7 @@ export function Header() {
       {/* Top utility bar */}
       <div className="hidden bg-primary text-primary-foreground md:block">
         <div className="container-page flex h-9 items-center justify-between text-xs">
-          <span className="opacity-90">Portal Resmi Pemerintah Kota Harapan</span>
+          <span className="opacity-90">Portal Resmi Pemerintah Kabupaten Buton Selatan</span>
           <div className="flex items-center gap-5 opacity-90">
             <a href="#" className="hover:opacity-100">PPID</a>
             <a href="#" className="hover:opacity-100">LAPOR!</a>
@@ -34,7 +34,7 @@ export function Header() {
           <img src={lambang} alt="Lambang" width={40} height={40} className="h-10 w-10" />
           <div className="leading-tight">
             <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Pemerintah Kota</div>
-            <div className="font-display text-base font-bold text-foreground">Kota Harapan</div>
+            <div className="font-display text-base font-bold text-foreground">Kabupaten Buton Selatan</div>
           </div>
         </Link>
 

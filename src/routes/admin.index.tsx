@@ -34,7 +34,7 @@ import { useAdminStore } from "@/store/admin-store";
 export const Route = createFileRoute("/admin/")({
   head: () => ({
     meta: [
-      { title: "Dashboard Admin OPD — Kota Harapan" },
+      { title: "Dashboard Admin OPD — Kabupaten Buton Selatan" },
       { name: "description", content: "Kelola permohonan warga: filter status & kategori, tugaskan petugas, pantau KPI." },
       { name: "robots", content: "noindex" },
     ],

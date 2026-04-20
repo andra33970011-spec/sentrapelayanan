@@ -10,12 +10,12 @@ export function Footer() {
           <div className="flex items-center gap-3">
             <img src={lambang} alt="Lambang" width={44} height={44} className="h-11 w-11" loading="lazy" />
             <div>
-              <div className="font-display text-lg font-bold">Pemerintah Kota Harapan</div>
+              <div className="font-display text-lg font-bold">Pemerintah Kabupaten Buton Selatan</div>
               <div className="text-xs text-muted-foreground">Melayani dengan integritas & data</div>
             </div>
           </div>
           <p className="mt-4 max-w-md text-sm text-muted-foreground">
-            Portal resmi pelayanan publik dan satu data Kota Harapan. Transparan, terpadu, dan dapat diakses kapan saja.
+            Portal resmi pelayanan publik dan satu data Kabupaten Buton Selatan. Transparan, terpadu, dan dapat diakses kapan saja.
           </p>
         </div>
 
@@ -32,15 +32,15 @@ export function Footer() {
         <div>
           <h4 className="text-sm font-semibold text-foreground">Kontak</h4>
           <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
-            <li className="flex gap-2"><MapPin className="h-4 w-4 mt-0.5 text-primary" /> Jl. Merdeka No. 1, Kota Harapan</li>
+            <li className="flex gap-2"><MapPin className="h-4 w-4 mt-0.5 text-primary" /> Jl. Merdeka No. 1, Kabupaten Buton Selatan</li>
             <li className="flex gap-2"><Phone className="h-4 w-4 mt-0.5 text-primary" /> (021) 555-0100</li>
-            <li className="flex gap-2"><Mail className="h-4 w-4 mt-0.5 text-primary" /> info@kotaharapan.go.id</li>
+            <li className="flex gap-2"><Mail className="h-4 w-4 mt-0.5 text-primary" /> info@butonselatan.go.id</li>
           </ul>
         </div>
       </div>
       <div className="border-t border-border">
         <div className="container-page flex flex-col gap-2 py-5 text-xs text-muted-foreground md:flex-row md:items-center md:justify-between">
-          <span>© {new Date().getFullYear()} Pemerintah Kota Harapan. Hak Cipta Dilindungi.</span>
+          <span>© {new Date().getFullYear()} Pemerintah Kabupaten Buton Selatan. Hak Cipta Dilindungi.</span>
           <div className="flex gap-5">
             <a href="#" className="hover:text-primary">Kebijakan Privasi</a>
             <a href="#" className="hover:text-primary">Syarat Layanan</a>

@@ -5,10 +5,10 @@ import { Target, Eye, Award, Users } from "lucide-react";
 export const Route = createFileRoute("/tentang")({
   head: () => ({
     meta: [
-      { title: "Tentang — Pemerintah Kota Harapan" },
-      { name: "description", content: "Visi, misi, struktur organisasi, dan profil Pemerintah Kota Harapan." },
-      { property: "og:title", content: "Tentang Pemerintah Kota Harapan" },
-      { property: "og:description", content: "Profil resmi dan visi misi Pemerintah Kota Harapan." },
+      { title: "Tentang — Pemerintah Kabupaten Buton Selatan" },
+      { name: "description", content: "Visi, misi, struktur organisasi, dan profil Pemerintah Kabupaten Buton Selatan." },
+      { property: "og:title", content: "Tentang Pemerintah Kabupaten Buton Selatan" },
+      { property: "og:description", content: "Profil resmi dan visi misi Pemerintah Kabupaten Buton Selatan." },
     ],
   }),
   component: TentangPage,
@@ -19,7 +19,7 @@ function TentangPage() {
     <PageShell>
       <PageHero
         eyebrow="Profil"
-        title="Tentang Pemerintah Kota Harapan."
+        title="Tentang Pemerintah Kabupaten Buton Selatan."
         description="Bekerja melayani 1,42 juta warga dengan tata kelola modern, transparan, dan berbasis data."
       />
 
@@ -29,7 +29,7 @@ function TentangPage() {
             <div className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-primary-soft text-primary"><Eye className="h-5 w-5" /></div>
             <h3 className="mt-5 text-xl font-semibold">Visi</h3>
             <p className="mt-3 text-muted-foreground">
-              Mewujudkan Kota Harapan sebagai kota cerdas, inklusif, dan berkelanjutan melalui pemerintahan yang melayani dan berbasis data.
+              Mewujudkan Kabupaten Buton Selatan sebagai kota cerdas, inklusif, dan berkelanjutan melalui pemerintahan yang melayani dan berbasis data.
             </p>
           </div>
           <div className="rounded-2xl border border-border bg-card p-8 shadow-soft">
@@ -46,7 +46,7 @@ function TentangPage() {
 
         <div className="mt-10 rounded-3xl bg-surface p-10">
           <h2 className="text-2xl font-bold">Struktur Pemerintahan</h2>
-          <p className="mt-2 text-muted-foreground">Kota Harapan dipimpin oleh Wali Kota dan Wakil Wali Kota dengan dukungan 28 Organisasi Perangkat Daerah (OPD).</p>
+          <p className="mt-2 text-muted-foreground">Kabupaten Buton Selatan dipimpin oleh Wali Kota dan Wakil Wali Kota dengan dukungan 28 Organisasi Perangkat Daerah (OPD).</p>
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             {[
               { nama: "Drs. Bagus Wiryawan", jabatan: "Wali Kota" },

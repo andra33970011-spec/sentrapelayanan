@@ -8,9 +8,9 @@ import {
 export const Route = createFileRoute("/layanan")({
   head: () => ({
     meta: [
-      { title: "Layanan Publik — Pemerintah Kota Harapan" },
+      { title: "Layanan Publik — Pemerintah Kabupaten Buton Selatan" },
       { name: "description", content: "Daftar lengkap layanan publik online: adminduk, perizinan, kesehatan, pendidikan, bantuan sosial, dan lainnya." },
-      { property: "og:title", content: "Layanan Publik Kota Harapan" },
+      { property: "og:title", content: "Layanan Publik Kabupaten Buton Selatan" },
       { property: "og:description", content: "Akses semua layanan publik dalam satu portal terpadu." },
     ],
   }),

@@ -5,10 +5,10 @@ import { Calendar, ArrowRight } from "lucide-react";
 export const Route = createFileRoute("/berita")({
   head: () => ({
     meta: [
-      { title: "Berita & Pengumuman — Pemerintah Kota Harapan" },
-      { name: "description", content: "Berita resmi, pengumuman, dan agenda kegiatan Pemerintah Kota Harapan." },
-      { property: "og:title", content: "Berita Pemerintah Kota Harapan" },
-      { property: "og:description", content: "Informasi resmi terkini dari Pemerintah Kota Harapan." },
+      { title: "Berita & Pengumuman — Pemerintah Kabupaten Buton Selatan" },
+      { name: "description", content: "Berita resmi, pengumuman, dan agenda kegiatan Pemerintah Kabupaten Buton Selatan." },
+      { property: "og:title", content: "Berita Pemerintah Kabupaten Buton Selatan" },
+      { property: "og:description", content: "Informasi resmi terkini dari Pemerintah Kabupaten Buton Selatan." },
     ],
   }),
   component: BeritaPage,
@@ -18,12 +18,12 @@ const featured = {
   kategori: "Pengumuman",
   tanggal: "18 April 2026",
   judul: "Pendaftaran PPDB Tahap I Dibuka 1 Mei 2026",
-  ringkasan: "Sebanyak 312 sekolah di Kota Harapan akan menerima siswa baru melalui sistem online PPDB terpadu. Orang tua dapat mendaftar melalui akun warga.",
+  ringkasan: "Sebanyak 312 sekolah di Kabupaten Buton Selatan akan menerima siswa baru melalui sistem online PPDB terpadu. Orang tua dapat mendaftar melalui akun warga.",
 };
 
 const berita = [
   { kategori: "Infrastruktur", tanggal: "16 Apr 2026", judul: "Revitalisasi Trotoar Jalan Sudirman Selesai 90%", ringkasan: "Pekerjaan ditargetkan rampung akhir bulan dengan tambahan jalur disabilitas." },
-  { kategori: "Kesehatan", tanggal: "14 Apr 2026", judul: "Vaksinasi Massal di 25 Puskesmas Akhir Pekan Ini", ringkasan: "Layanan gratis untuk warga ber-KTP Kota Harapan, tanpa pendaftaran." },
+  { kategori: "Kesehatan", tanggal: "14 Apr 2026", judul: "Vaksinasi Massal di 25 Puskesmas Akhir Pekan Ini", ringkasan: "Layanan gratis untuk warga ber-KTP Kabupaten Buton Selatan, tanpa pendaftaran." },
   { kategori: "Ekonomi", tanggal: "12 Apr 2026", judul: "1.200 UMKM Naik Kelas Lewat Program Inkubasi", ringkasan: "Pelatihan digitalisasi dan akses pembiayaan diperluas hingga ke kelurahan." },
   { kategori: "Lingkungan", tanggal: "10 Apr 2026", judul: "Indeks Kualitas Udara Membaik 12% Sepanjang Q1", ringkasan: "Hasil dari penambahan ruang terbuka hijau dan elektrifikasi transportasi." },
   { kategori: "Sosial", tanggal: "08 Apr 2026", judul: "Bantuan PKH Tahap I Disalurkan ke 48.000 KPM", ringkasan: "Penyaluran melalui rekening bank Himbara, transparan dan akuntabel." },
@@ -36,7 +36,7 @@ function BeritaPage() {
       <PageHero
         eyebrow="Pusat Informasi"
         title="Berita & pengumuman resmi."
-        description="Sumber tunggal informasi terverifikasi dari seluruh OPD Pemerintah Kota Harapan."
+        description="Sumber tunggal informasi terverifikasi dari seluruh OPD Pemerintah Kabupaten Buton Selatan."
       />
 
       <section className="container-page py-14">

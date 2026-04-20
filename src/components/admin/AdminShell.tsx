@@ -29,7 +29,7 @@ export function AdminShell({
             <img src={lambang} alt="" className="h-8 w-8" />
             <div className="hidden sm:block leading-tight">
               <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Admin OPD</div>
-              <div className="font-display text-sm font-bold">Kota Harapan</div>
+              <div className="font-display text-sm font-bold">Kabupaten Buton Selatan</div>
             </div>
           </Link>
 

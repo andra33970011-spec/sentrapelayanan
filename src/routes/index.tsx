@@ -10,9 +10,9 @@ import heroImg from "@/assets/hero-city.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Pemerintah Kota Harapan — Portal Resmi & Satu Data" },
-      { name: "description", content: "Portal resmi pelayanan publik dan satu data Kota Harapan. Ajukan layanan, lihat statistik, dan pantau kinerja pemerintah." },
-      { property: "og:title", content: "Pemerintah Kota Harapan — Portal Resmi" },
+      { title: "Pemerintah Kabupaten Buton Selatan — Portal Resmi & Satu Data" },
+      { name: "description", content: "Portal resmi pelayanan publik dan satu data Kabupaten Buton Selatan. Ajukan layanan, lihat statistik, dan pantau kinerja pemerintah." },
+      { property: "og:title", content: "Pemerintah Kabupaten Buton Selatan — Portal Resmi" },
       { property: "og:description", content: "Sentralisasi data dan pelayanan publik kota dalam satu portal." },
     ],
   }),
@@ -60,7 +60,7 @@ function HomePage() {
               Satu Portal,<br />Satu Data,<br /><span className="text-gold">Satu Pelayanan.</span>
             </h1>
             <p className="mt-5 max-w-xl text-base text-white/85 md:text-lg">
-              Akses seluruh layanan publik Kota Harapan dan data pemerintah terpadu dalam satu tempat — cepat, transparan, dan terverifikasi.
+              Akses seluruh layanan publik Kabupaten Buton Selatan dan data pemerintah terpadu dalam satu tempat — cepat, transparan, dan terverifikasi.
             </p>
 
             <div className="mt-7 flex flex-wrap gap-3">
