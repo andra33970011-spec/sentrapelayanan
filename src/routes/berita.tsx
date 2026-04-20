@@ -27,7 +27,7 @@ const berita = [
   { kategori: "Ekonomi", tanggal: "12 Apr 2026", judul: "1.200 UMKM Naik Kelas Lewat Program Inkubasi", ringkasan: "Pelatihan digitalisasi dan akses pembiayaan diperluas hingga ke kelurahan." },
   { kategori: "Lingkungan", tanggal: "10 Apr 2026", judul: "Indeks Kualitas Udara Membaik 12% Sepanjang Q1", ringkasan: "Hasil dari penambahan ruang terbuka hijau dan elektrifikasi transportasi." },
   { kategori: "Sosial", tanggal: "08 Apr 2026", judul: "Bantuan PKH Tahap I Disalurkan ke 48.000 KPM", ringkasan: "Penyaluran melalui rekening bank Himbara, transparan dan akuntabel." },
-  { kategori: "Pemerintahan", tanggal: "05 Apr 2026", judul: "Wali Kota Buka Musrenbang RKPD 2027", ringkasan: "Mengusung tema pembangunan inklusif berbasis data terpadu." },
+  { kategori: "Pemerintahan", tanggal: "05 Apr 2026", judul: "Bupati Buka Musrenbang RKPD 2027", ringkasan: "Mengusung tema pembangunan inklusif berbasis data terpadu." },
 ];
 
 function BeritaPage() {
