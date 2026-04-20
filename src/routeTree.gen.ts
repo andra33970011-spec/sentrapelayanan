@@ -15,6 +15,8 @@ import { Route as KontakRouteImport } from './routes/kontak'
 import { Route as DataRouteImport } from './routes/data'
 import { Route as BeritaRouteImport } from './routes/berita'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminPermohonanIdRouteImport } from './routes/admin.permohonan.$id'
 
 const TentangRoute = TentangRouteImport.update({
   id: '/tentang',
@@ -46,6 +48,16 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminPermohonanIdRoute = AdminPermohonanIdRouteImport.update({
+  id: '/admin/permohonan/$id',
+  path: '/admin/permohonan/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +66,8 @@ export interface FileRoutesByFullPath {
   '/kontak': typeof KontakRoute
   '/layanan': typeof LayananRoute
   '/tentang': typeof TentangRoute
+  '/admin/': typeof AdminIndexRoute
+  '/admin/permohonan/$id': typeof AdminPermohonanIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +76,8 @@ export interface FileRoutesByTo {
   '/kontak': typeof KontakRoute
   '/layanan': typeof LayananRoute
   '/tentang': typeof TentangRoute
+  '/admin': typeof AdminIndexRoute
+  '/admin/permohonan/$id': typeof AdminPermohonanIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,12 +87,30 @@ export interface FileRoutesById {
   '/kontak': typeof KontakRoute
   '/layanan': typeof LayananRoute
   '/tentang': typeof TentangRoute
+  '/admin/': typeof AdminIndexRoute
+  '/admin/permohonan/$id': typeof AdminPermohonanIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/berita' | '/data' | '/kontak' | '/layanan' | '/tentang'
+  fullPaths:
+    | '/'
+    | '/berita'
+    | '/data'
+    | '/kontak'
+    | '/layanan'
+    | '/tentang'
+    | '/admin/'
+    | '/admin/permohonan/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/berita' | '/data' | '/kontak' | '/layanan' | '/tentang'
+  to:
+    | '/'
+    | '/berita'
+    | '/data'
+    | '/kontak'
+    | '/layanan'
+    | '/tentang'
+    | '/admin'
+    | '/admin/permohonan/$id'
   id:
     | '__root__'
     | '/'
@@ -85,6 +119,8 @@ export interface FileRouteTypes {
     | '/kontak'
     | '/layanan'
     | '/tentang'
+    | '/admin/'
+    | '/admin/permohonan/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -94,6 +130,8 @@ export interface RootRouteChildren {
   KontakRoute: typeof KontakRoute
   LayananRoute: typeof LayananRoute
   TentangRoute: typeof TentangRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+  AdminPermohonanIdRoute: typeof AdminPermohonanIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -140,6 +178,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/permohonan/$id': {
+      id: '/admin/permohonan/$id'
+      path: '/admin/permohonan/$id'
+      fullPath: '/admin/permohonan/$id'
+      preLoaderRoute: typeof AdminPermohonanIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -150,7 +202,18 @@ const rootRouteChildren: RootRouteChildren = {
   KontakRoute: KontakRoute,
   LayananRoute: LayananRoute,
   TentangRoute: TentangRoute,
+  AdminIndexRoute: AdminIndexRoute,
+  AdminPermohonanIdRoute: AdminPermohonanIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
