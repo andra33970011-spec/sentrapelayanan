@@ -60,6 +60,12 @@ export function Header() {
             <Search className="h-4 w-4" />
           </button>
           <Link
+            to="/admin"
+            className="hidden md:inline-flex h-10 items-center rounded-md border border-border px-3 text-sm font-medium text-surface-foreground hover:bg-muted"
+          >
+            Admin OPD
+          </Link>
+          <Link
             to="/layanan"
             className="hidden md:inline-flex h-10 items-center rounded-md bg-gradient-primary px-4 text-sm font-semibold text-primary-foreground shadow-soft hover:opacity-95"
           >
