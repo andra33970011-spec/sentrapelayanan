@@ -29,7 +29,7 @@ import { AdminShell } from "@/components/admin/AdminShell";
 export const Route = createFileRoute("/admin/permohonan/$id")({
   head: ({ params }) => ({
     meta: [
-      { title: `Permohonan ${params.id} — Admin Kota Harapan` },
+      { title: `Permohonan ${params.id} — Admin Kabupaten Buton Selatan` },
       { name: "robots", content: "noindex" },
     ],
   }),

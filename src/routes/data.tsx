@@ -9,9 +9,9 @@ import { Database, TrendingUp, Users, Wallet, Download } from "lucide-react";
 export const Route = createFileRoute("/data")({
   head: () => ({
     meta: [
-      { title: "Satu Data — Pemerintah Kota Harapan" },
-      { name: "description", content: "Dashboard data terpadu Kota Harapan: penduduk, anggaran, kinerja layanan, dan ekonomi." },
-      { property: "og:title", content: "Satu Data Kota Harapan" },
+      { title: "Satu Data — Pemerintah Kabupaten Buton Selatan" },
+      { name: "description", content: "Dashboard data terpadu Kabupaten Buton Selatan: penduduk, anggaran, kinerja layanan, dan ekonomi." },
+      { property: "og:title", content: "Satu Data Kabupaten Buton Selatan" },
       { property: "og:description", content: "Visualisasi data publik dan kinerja pemerintah kota." },
     ],
   }),
@@ -67,7 +67,7 @@ function DataPage() {
       <PageHero
         eyebrow="Satu Data Indonesia"
         title="Data terpadu, terbuka, dan terverifikasi."
-        description="Pantau capaian pembangunan, anggaran, dan layanan publik Kota Harapan secara real-time."
+        description="Pantau capaian pembangunan, anggaran, dan layanan publik Kabupaten Buton Selatan secara real-time."
       />
 
       <section className="container-page -mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

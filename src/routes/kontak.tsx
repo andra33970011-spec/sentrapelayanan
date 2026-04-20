@@ -5,10 +5,10 @@ import { MapPin, Phone, Mail, Clock, MessageSquare } from "lucide-react";
 export const Route = createFileRoute("/kontak")({
   head: () => ({
     meta: [
-      { title: "Kontak & LAPOR! — Pemerintah Kota Harapan" },
-      { name: "description", content: "Hubungi Pemerintah Kota Harapan atau sampaikan laporan & aspirasi melalui kanal LAPOR!." },
-      { property: "og:title", content: "Kontak Pemerintah Kota Harapan" },
-      { property: "og:description", content: "Saluran resmi pengaduan dan kontak Pemerintah Kota Harapan." },
+      { title: "Kontak & LAPOR! — Pemerintah Kabupaten Buton Selatan" },
+      { name: "description", content: "Hubungi Pemerintah Kabupaten Buton Selatan atau sampaikan laporan & aspirasi melalui kanal LAPOR!." },
+      { property: "og:title", content: "Kontak Pemerintah Kabupaten Buton Selatan" },
+      { property: "og:description", content: "Saluran resmi pengaduan dan kontak Pemerintah Kabupaten Buton Selatan." },
     ],
   }),
   component: KontakPage,
@@ -28,9 +28,9 @@ function KontakPage() {
           {/* Info */}
           <div className="space-y-4">
             {[
-              { icon: MapPin, title: "Alamat", value: "Balai Kota, Jl. Merdeka No. 1\nKota Harapan 16110" },
+              { icon: MapPin, title: "Alamat", value: "Balai Kota, Jl. Merdeka No. 1\nKabupaten Buton Selatan 16110" },
               { icon: Phone, title: "Telepon", value: "(021) 555-0100\nHotline: 112" },
-              { icon: Mail, title: "Email", value: "info@kotaharapan.go.id\npengaduan@kotaharapan.go.id" },
+              { icon: Mail, title: "Email", value: "info@butonselatan.go.id\npengaduan@butonselatan.go.id" },
               { icon: Clock, title: "Jam Pelayanan", value: "Senin–Jumat: 08.00–16.00\nSabtu: 08.00–12.00" },
             ].map((it) => (
               <div key={it.title} className="rounded-2xl border border-border bg-card p-5 shadow-soft">
