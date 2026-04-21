@@ -56,6 +56,48 @@ export type Database = {
         }
         Relationships: []
       }
+      berita: {
+        Row: {
+          created_at: string
+          gambar_url: string | null
+          id: string
+          isi: string
+          judul: string
+          penulis_id: string | null
+          published_at: string | null
+          ringkasan: string | null
+          slug: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          gambar_url?: string | null
+          id?: string
+          isi?: string
+          judul: string
+          penulis_id?: string | null
+          published_at?: string | null
+          ringkasan?: string | null
+          slug: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          gambar_url?: string | null
+          id?: string
+          isi?: string
+          judul?: string
+          penulis_id?: string | null
+          published_at?: string | null
+          ringkasan?: string | null
+          slug?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       job_queue: {
         Row: {
           attempts: number
@@ -103,6 +145,92 @@ export type Database = {
           status?: Database["public"]["Enums"]["job_status"]
         }
         Relationships: []
+      }
+      kategori_layanan: {
+        Row: {
+          aktif: boolean
+          created_at: string
+          deskripsi: string | null
+          id: string
+          nama: string
+          sla_hari: number
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          aktif?: boolean
+          created_at?: string
+          deskripsi?: string | null
+          id?: string
+          nama: string
+          sla_hari?: number
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          aktif?: boolean
+          created_at?: string
+          deskripsi?: string | null
+          id?: string
+          nama?: string
+          sla_hari?: number
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      layanan_publik: {
+        Row: {
+          aktif: boolean
+          alur: string | null
+          created_at: string
+          deskripsi: string | null
+          id: string
+          ikon: string | null
+          judul: string
+          opd_id: string | null
+          persyaratan: string | null
+          slug: string
+          updated_at: string
+          urutan: number
+        }
+        Insert: {
+          aktif?: boolean
+          alur?: string | null
+          created_at?: string
+          deskripsi?: string | null
+          id?: string
+          ikon?: string | null
+          judul: string
+          opd_id?: string | null
+          persyaratan?: string | null
+          slug: string
+          updated_at?: string
+          urutan?: number
+        }
+        Update: {
+          aktif?: boolean
+          alur?: string | null
+          created_at?: string
+          deskripsi?: string | null
+          id?: string
+          ikon?: string | null
+          judul?: string
+          opd_id?: string | null
+          persyaratan?: string | null
+          slug?: string
+          updated_at?: string
+          urutan?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "layanan_publik_opd_id_fkey"
+            columns: ["opd_id"]
+            isOneToOne: false
+            referencedRelation: "opd"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       opd: {
         Row: {
@@ -230,6 +358,7 @@ export type Database = {
           nik: string | null
           no_hp: string | null
           opd_id: string | null
+          status: string
           updated_at: string
         }
         Insert: {
@@ -239,6 +368,7 @@ export type Database = {
           nik?: string | null
           no_hp?: string | null
           opd_id?: string | null
+          status?: string
           updated_at?: string
         }
         Update: {
@@ -248,6 +378,7 @@ export type Database = {
           nik?: string | null
           no_hp?: string | null
           opd_id?: string | null
+          status?: string
           updated_at?: string
         }
         Relationships: [
