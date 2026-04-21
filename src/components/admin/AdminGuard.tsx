@@ -1,11 +1,8 @@
-import { createFileRoute, Outlet, Link } from "@tanstack/react-router";
+import type { ReactNode } from "react";
+import { Link } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 
-export const Route = createFileRoute("/admin")({
-  component: AdminLayout,
-});
-
-function AdminLayout() {
+export function AdminGuard({ children }: { children: ReactNode }) {
   const { user, loading, isAdmin } = useAuth();
 
   if (loading) {
@@ -15,7 +12,6 @@ function AdminLayout() {
       </div>
     );
   }
-
   if (!user) {
     return (
       <Gate
@@ -25,7 +21,6 @@ function AdminLayout() {
       />
     );
   }
-
   if (!isAdmin) {
     return (
       <Gate
@@ -35,8 +30,7 @@ function AdminLayout() {
       />
     );
   }
-
-  return <Outlet />;
+  return <>{children}</>;
 }
 
 function Gate({ title, msg, cta }: { title: string; msg: string; cta: { to: string; label: string } }) {
