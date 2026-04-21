@@ -17,7 +17,9 @@ import { Route as DataRouteImport } from './routes/data'
 import { Route as BeritaRouteImport } from './routes/berita'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PermohonanIndexRouteImport } from './routes/permohonan.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as PermohonanBaruRouteImport } from './routes/permohonan.baru'
 import { Route as HooksQueueWorkerRouteImport } from './routes/hooks.queue-worker'
 import { Route as AdminPermohonanIdRouteImport } from './routes/admin.permohonan.$id'
 
@@ -61,9 +63,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PermohonanIndexRoute = PermohonanIndexRouteImport.update({
+  id: '/permohonan/',
+  path: '/permohonan/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PermohonanBaruRoute = PermohonanBaruRouteImport.update({
+  id: '/permohonan/baru',
+  path: '/permohonan/baru',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HooksQueueWorkerRoute = HooksQueueWorkerRouteImport.update({
@@ -87,7 +99,9 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/tentang': typeof TentangRoute
   '/hooks/queue-worker': typeof HooksQueueWorkerRoute
+  '/permohonan/baru': typeof PermohonanBaruRoute
   '/admin/': typeof AdminIndexRoute
+  '/permohonan/': typeof PermohonanIndexRoute
   '/admin/permohonan/$id': typeof AdminPermohonanIdRoute
 }
 export interface FileRoutesByTo {
@@ -100,7 +114,9 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/tentang': typeof TentangRoute
   '/hooks/queue-worker': typeof HooksQueueWorkerRoute
+  '/permohonan/baru': typeof PermohonanBaruRoute
   '/admin': typeof AdminIndexRoute
+  '/permohonan': typeof PermohonanIndexRoute
   '/admin/permohonan/$id': typeof AdminPermohonanIdRoute
 }
 export interface FileRoutesById {
@@ -114,7 +130,9 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/tentang': typeof TentangRoute
   '/hooks/queue-worker': typeof HooksQueueWorkerRoute
+  '/permohonan/baru': typeof PermohonanBaruRoute
   '/admin/': typeof AdminIndexRoute
+  '/permohonan/': typeof PermohonanIndexRoute
   '/admin/permohonan/$id': typeof AdminPermohonanIdRoute
 }
 export interface FileRouteTypes {
@@ -129,7 +147,9 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/tentang'
     | '/hooks/queue-worker'
+    | '/permohonan/baru'
     | '/admin/'
+    | '/permohonan/'
     | '/admin/permohonan/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -142,7 +162,9 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/tentang'
     | '/hooks/queue-worker'
+    | '/permohonan/baru'
     | '/admin'
+    | '/permohonan'
     | '/admin/permohonan/$id'
   id:
     | '__root__'
@@ -155,7 +177,9 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/tentang'
     | '/hooks/queue-worker'
+    | '/permohonan/baru'
     | '/admin/'
+    | '/permohonan/'
     | '/admin/permohonan/$id'
   fileRoutesById: FileRoutesById
 }
@@ -169,7 +193,9 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   TentangRoute: typeof TentangRoute
   HooksQueueWorkerRoute: typeof HooksQueueWorkerRoute
+  PermohonanBaruRoute: typeof PermohonanBaruRoute
   AdminIndexRoute: typeof AdminIndexRoute
+  PermohonanIndexRoute: typeof PermohonanIndexRoute
   AdminPermohonanIdRoute: typeof AdminPermohonanIdRoute
 }
 
@@ -231,11 +257,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/permohonan/': {
+      id: '/permohonan/'
+      path: '/permohonan'
+      fullPath: '/permohonan/'
+      preLoaderRoute: typeof PermohonanIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/': {
       id: '/admin/'
       path: '/admin'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/permohonan/baru': {
+      id: '/permohonan/baru'
+      path: '/permohonan/baru'
+      fullPath: '/permohonan/baru'
+      preLoaderRoute: typeof PermohonanBaruRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hooks/queue-worker': {
@@ -265,7 +305,9 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   TentangRoute: TentangRoute,
   HooksQueueWorkerRoute: HooksQueueWorkerRoute,
+  PermohonanBaruRoute: PermohonanBaruRoute,
   AdminIndexRoute: AdminIndexRoute,
+  PermohonanIndexRoute: PermohonanIndexRoute,
   AdminPermohonanIdRoute: AdminPermohonanIdRoute,
 }
 export const routeTree = rootRouteImport
