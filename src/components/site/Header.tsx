@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Menu, X, Search } from "lucide-react";
+import { Menu, X, Search, LogOut } from "lucide-react";
 import lambang from "@/assets/lambang.png";
+import { useAuth } from "@/lib/auth-context";
 
 const navItems = [
   { to: "/", label: "Beranda" },
@@ -14,6 +15,7 @@ const navItems = [
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const { user, isAdmin, signOut } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-md">
@@ -59,18 +61,29 @@ export function Header() {
           >
             <Search className="h-4 w-4" />
           </button>
-          <Link
-            to="/admin"
-            className="hidden md:inline-flex h-10 items-center rounded-md border border-border px-3 text-sm font-medium text-surface-foreground hover:bg-muted"
-          >
-            Admin OPD
-          </Link>
-          <Link
-            to="/layanan"
-            className="hidden md:inline-flex h-10 items-center rounded-md bg-gradient-primary px-4 text-sm font-semibold text-primary-foreground shadow-soft hover:opacity-95"
-          >
-            Masuk Akun
-          </Link>
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className="hidden md:inline-flex h-10 items-center rounded-md border border-border px-3 text-sm font-medium text-surface-foreground hover:bg-muted"
+            >
+              Admin OPD
+            </Link>
+          )}
+          {user ? (
+            <button
+              onClick={() => signOut()}
+              className="hidden md:inline-flex h-10 items-center gap-1.5 rounded-md bg-gradient-primary px-4 text-sm font-semibold text-primary-foreground shadow-soft hover:opacity-95"
+            >
+              <LogOut className="h-4 w-4" /> Keluar
+            </button>
+          ) : (
+            <Link
+              to="/auth"
+              className="hidden md:inline-flex h-10 items-center rounded-md bg-gradient-primary px-4 text-sm font-semibold text-primary-foreground shadow-soft hover:opacity-95"
+            >
+              Masuk Akun
+            </Link>
+          )}
           <button
             aria-label="Menu"
             onClick={() => setOpen((v) => !v)}
@@ -96,13 +109,22 @@ export function Header() {
                 {item.label}
               </Link>
             ))}
-            <Link
-              to="/layanan"
-              onClick={() => setOpen(false)}
-              className="mt-2 inline-flex h-11 items-center justify-center rounded-md bg-gradient-primary text-sm font-semibold text-primary-foreground"
-            >
-              Masuk Akun
-            </Link>
+            {user ? (
+              <button
+                onClick={() => { signOut(); setOpen(false); }}
+                className="mt-2 inline-flex h-11 items-center justify-center rounded-md bg-gradient-primary text-sm font-semibold text-primary-foreground"
+              >
+                Keluar
+              </button>
+            ) : (
+              <Link
+                to="/auth"
+                onClick={() => setOpen(false)}
+                className="mt-2 inline-flex h-11 items-center justify-center rounded-md bg-gradient-primary text-sm font-semibold text-primary-foreground"
+              >
+                Masuk Akun
+              </Link>
+            )}
           </div>
         </nav>
       )}

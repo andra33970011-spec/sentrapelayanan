@@ -22,6 +22,7 @@ import {
   CartesianGrid,
 } from "recharts";
 import { AdminShell, StatCard } from "@/components/admin/AdminShell";
+import { AdminGuard } from "@/components/admin/AdminGuard";
 import {
   OPD_LIST,
   PETUGAS_LIST,
@@ -39,7 +40,11 @@ export const Route = createFileRoute("/admin/")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: AdminDashboard,
+  component: () => (
+    <AdminGuard>
+      <AdminDashboard />
+    </AdminGuard>
+  ),
 });
 
 const STATUS_OPTIONS: ("semua" | StatusPermohonan)[] = ["semua", "baru", "diproses", "selesai", "ditolak"];
