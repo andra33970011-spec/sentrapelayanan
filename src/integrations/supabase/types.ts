@@ -14,6 +14,96 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_log: {
+        Row: {
+          aksi: string
+          created_at: string
+          data_sebelum: Json | null
+          data_sesudah: Json | null
+          entitas: string
+          entitas_id: string | null
+          id: string
+          ip_address: string | null
+          user_agent: string | null
+          user_email: string | null
+          user_id: string | null
+        }
+        Insert: {
+          aksi: string
+          created_at?: string
+          data_sebelum?: Json | null
+          data_sesudah?: Json | null
+          entitas: string
+          entitas_id?: string | null
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          aksi?: string
+          created_at?: string
+          data_sebelum?: Json | null
+          data_sesudah?: Json | null
+          entitas?: string
+          entitas_id?: string | null
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      job_queue: {
+        Row: {
+          attempts: number
+          created_at: string
+          created_by: string | null
+          error: string | null
+          finished_at: string | null
+          id: string
+          job_type: string
+          max_attempts: number
+          payload: Json
+          result: Json | null
+          scheduled_at: string
+          started_at: string | null
+          status: Database["public"]["Enums"]["job_status"]
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          created_by?: string | null
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          job_type: string
+          max_attempts?: number
+          payload?: Json
+          result?: Json | null
+          scheduled_at?: string
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["job_status"]
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          created_by?: string | null
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          job_type?: string
+          max_attempts?: number
+          payload?: Json
+          result?: Json | null
+          scheduled_at?: string
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["job_status"]
+        }
+        Relationships: []
+      }
       opd: {
         Row: {
           created_at: string
@@ -48,8 +138,11 @@ export type Database = {
           opd_id: string
           pemohon_id: string
           petugas_id: string | null
+          prioritas: string
+          ringkasan: string | null
           status: Database["public"]["Enums"]["status_permohonan"]
           tanggal_masuk: string
+          tenggat: string | null
           updated_at: string
         }
         Insert: {
@@ -61,8 +154,11 @@ export type Database = {
           opd_id: string
           pemohon_id: string
           petugas_id?: string | null
+          prioritas?: string
+          ringkasan?: string | null
           status?: Database["public"]["Enums"]["status_permohonan"]
           tanggal_masuk?: string
+          tenggat?: string | null
           updated_at?: string
         }
         Update: {
@@ -74,8 +170,11 @@ export type Database = {
           opd_id?: string
           pemohon_id?: string
           petugas_id?: string | null
+          prioritas?: string
+          ringkasan?: string | null
           status?: Database["public"]["Enums"]["status_permohonan"]
           tanggal_masuk?: string
+          tenggat?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -161,6 +260,30 @@ export type Database = {
           },
         ]
       }
+      rate_limit: {
+        Row: {
+          bucket: string
+          count: number
+          id: string
+          identifier: string
+          window_start: string
+        }
+        Insert: {
+          bucket: string
+          count?: number
+          id?: string
+          identifier: string
+          window_start?: string
+        }
+        Update: {
+          bucket?: string
+          count?: number
+          id?: string
+          identifier?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -197,6 +320,7 @@ export type Database = {
     }
     Enums: {
       app_role: "warga" | "admin_opd" | "super_admin"
+      job_status: "pending" | "running" | "success" | "failed" | "dead"
       status_permohonan: "baru" | "diproses" | "selesai" | "ditolak"
     }
     CompositeTypes: {
@@ -326,6 +450,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["warga", "admin_opd", "super_admin"],
+      job_status: ["pending", "running", "success", "failed", "dead"],
       status_permohonan: ["baru", "diproses", "selesai", "ditolak"],
     },
   },
