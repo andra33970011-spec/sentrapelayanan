@@ -25,6 +25,7 @@ import {
   useAdminStore,
 } from "@/store/admin-store";
 import { AdminShell } from "@/components/admin/AdminShell";
+import { AdminGuard } from "@/components/admin/AdminGuard";
 
 export const Route = createFileRoute("/admin/permohonan/$id")({
   head: ({ params }) => ({
@@ -33,7 +34,11 @@ export const Route = createFileRoute("/admin/permohonan/$id")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: DetailPermohonan,
+  component: () => (
+    <AdminGuard>
+      <DetailPermohonan />
+    </AdminGuard>
+  ),
   notFoundComponent: () => (
     <AdminShell breadcrumb={[{ label: "Permohonan" }]}>
       <div className="rounded-xl border border-border bg-card p-12 text-center">
