@@ -22,6 +22,10 @@ import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as PermohonanBaruRouteImport } from './routes/permohonan.baru'
 import { Route as HooksQueueWorkerRouteImport } from './routes/hooks.queue-worker'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as AdminStorageRouteImport } from './routes/admin.storage'
+import { Route as AdminOpdRouteImport } from './routes/admin.opd'
+import { Route as AdminConfigRouteImport } from './routes/admin.config'
+import { Route as AdminCmsRouteImport } from './routes/admin.cms'
 import { Route as AdminBackupRouteImport } from './routes/admin.backup'
 import { Route as AdminAuditRouteImport } from './routes/admin.audit'
 import { Route as AdminPermohonanIdRouteImport } from './routes/admin.permohonan.$id'
@@ -91,6 +95,26 @@ const AdminUsersRoute = AdminUsersRouteImport.update({
   path: '/admin/users',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminStorageRoute = AdminStorageRouteImport.update({
+  id: '/admin/storage',
+  path: '/admin/storage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminOpdRoute = AdminOpdRouteImport.update({
+  id: '/admin/opd',
+  path: '/admin/opd',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminConfigRoute = AdminConfigRouteImport.update({
+  id: '/admin/config',
+  path: '/admin/config',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminCmsRoute = AdminCmsRouteImport.update({
+  id: '/admin/cms',
+  path: '/admin/cms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminBackupRoute = AdminBackupRouteImport.update({
   id: '/admin/backup',
   path: '/admin/backup',
@@ -118,6 +142,10 @@ export interface FileRoutesByFullPath {
   '/tentang': typeof TentangRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/backup': typeof AdminBackupRoute
+  '/admin/cms': typeof AdminCmsRoute
+  '/admin/config': typeof AdminConfigRoute
+  '/admin/opd': typeof AdminOpdRoute
+  '/admin/storage': typeof AdminStorageRoute
   '/admin/users': typeof AdminUsersRoute
   '/hooks/queue-worker': typeof HooksQueueWorkerRoute
   '/permohonan/baru': typeof PermohonanBaruRoute
@@ -136,6 +164,10 @@ export interface FileRoutesByTo {
   '/tentang': typeof TentangRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/backup': typeof AdminBackupRoute
+  '/admin/cms': typeof AdminCmsRoute
+  '/admin/config': typeof AdminConfigRoute
+  '/admin/opd': typeof AdminOpdRoute
+  '/admin/storage': typeof AdminStorageRoute
   '/admin/users': typeof AdminUsersRoute
   '/hooks/queue-worker': typeof HooksQueueWorkerRoute
   '/permohonan/baru': typeof PermohonanBaruRoute
@@ -155,6 +187,10 @@ export interface FileRoutesById {
   '/tentang': typeof TentangRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/backup': typeof AdminBackupRoute
+  '/admin/cms': typeof AdminCmsRoute
+  '/admin/config': typeof AdminConfigRoute
+  '/admin/opd': typeof AdminOpdRoute
+  '/admin/storage': typeof AdminStorageRoute
   '/admin/users': typeof AdminUsersRoute
   '/hooks/queue-worker': typeof HooksQueueWorkerRoute
   '/permohonan/baru': typeof PermohonanBaruRoute
@@ -175,6 +211,10 @@ export interface FileRouteTypes {
     | '/tentang'
     | '/admin/audit'
     | '/admin/backup'
+    | '/admin/cms'
+    | '/admin/config'
+    | '/admin/opd'
+    | '/admin/storage'
     | '/admin/users'
     | '/hooks/queue-worker'
     | '/permohonan/baru'
@@ -193,6 +233,10 @@ export interface FileRouteTypes {
     | '/tentang'
     | '/admin/audit'
     | '/admin/backup'
+    | '/admin/cms'
+    | '/admin/config'
+    | '/admin/opd'
+    | '/admin/storage'
     | '/admin/users'
     | '/hooks/queue-worker'
     | '/permohonan/baru'
@@ -211,6 +255,10 @@ export interface FileRouteTypes {
     | '/tentang'
     | '/admin/audit'
     | '/admin/backup'
+    | '/admin/cms'
+    | '/admin/config'
+    | '/admin/opd'
+    | '/admin/storage'
     | '/admin/users'
     | '/hooks/queue-worker'
     | '/permohonan/baru'
@@ -230,6 +278,10 @@ export interface RootRouteChildren {
   TentangRoute: typeof TentangRoute
   AdminAuditRoute: typeof AdminAuditRoute
   AdminBackupRoute: typeof AdminBackupRoute
+  AdminCmsRoute: typeof AdminCmsRoute
+  AdminConfigRoute: typeof AdminConfigRoute
+  AdminOpdRoute: typeof AdminOpdRoute
+  AdminStorageRoute: typeof AdminStorageRoute
   AdminUsersRoute: typeof AdminUsersRoute
   HooksQueueWorkerRoute: typeof HooksQueueWorkerRoute
   PermohonanBaruRoute: typeof PermohonanBaruRoute
@@ -331,6 +383,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/storage': {
+      id: '/admin/storage'
+      path: '/admin/storage'
+      fullPath: '/admin/storage'
+      preLoaderRoute: typeof AdminStorageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/opd': {
+      id: '/admin/opd'
+      path: '/admin/opd'
+      fullPath: '/admin/opd'
+      preLoaderRoute: typeof AdminOpdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/config': {
+      id: '/admin/config'
+      path: '/admin/config'
+      fullPath: '/admin/config'
+      preLoaderRoute: typeof AdminConfigRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/cms': {
+      id: '/admin/cms'
+      path: '/admin/cms'
+      fullPath: '/admin/cms'
+      preLoaderRoute: typeof AdminCmsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/backup': {
       id: '/admin/backup'
       path: '/admin/backup'
@@ -366,6 +446,10 @@ const rootRouteChildren: RootRouteChildren = {
   TentangRoute: TentangRoute,
   AdminAuditRoute: AdminAuditRoute,
   AdminBackupRoute: AdminBackupRoute,
+  AdminCmsRoute: AdminCmsRoute,
+  AdminConfigRoute: AdminConfigRoute,
+  AdminOpdRoute: AdminOpdRoute,
+  AdminStorageRoute: AdminStorageRoute,
   AdminUsersRoute: AdminUsersRoute,
   HooksQueueWorkerRoute: HooksQueueWorkerRoute,
   PermohonanBaruRoute: PermohonanBaruRoute,
