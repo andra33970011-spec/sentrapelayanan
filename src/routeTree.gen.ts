@@ -21,6 +21,9 @@ import { Route as PermohonanIndexRouteImport } from './routes/permohonan.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as PermohonanBaruRouteImport } from './routes/permohonan.baru'
 import { Route as HooksQueueWorkerRouteImport } from './routes/hooks.queue-worker'
+import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as AdminBackupRouteImport } from './routes/admin.backup'
+import { Route as AdminAuditRouteImport } from './routes/admin.audit'
 import { Route as AdminPermohonanIdRouteImport } from './routes/admin.permohonan.$id'
 
 const TentangRoute = TentangRouteImport.update({
@@ -83,6 +86,21 @@ const HooksQueueWorkerRoute = HooksQueueWorkerRouteImport.update({
   path: '/hooks/queue-worker',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminBackupRoute = AdminBackupRouteImport.update({
+  id: '/admin/backup',
+  path: '/admin/backup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminAuditRoute = AdminAuditRouteImport.update({
+  id: '/admin/audit',
+  path: '/admin/audit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminPermohonanIdRoute = AdminPermohonanIdRouteImport.update({
   id: '/admin/permohonan/$id',
   path: '/admin/permohonan/$id',
@@ -98,6 +116,9 @@ export interface FileRoutesByFullPath {
   '/layanan': typeof LayananRoute
   '/reset-password': typeof ResetPasswordRoute
   '/tentang': typeof TentangRoute
+  '/admin/audit': typeof AdminAuditRoute
+  '/admin/backup': typeof AdminBackupRoute
+  '/admin/users': typeof AdminUsersRoute
   '/hooks/queue-worker': typeof HooksQueueWorkerRoute
   '/permohonan/baru': typeof PermohonanBaruRoute
   '/admin/': typeof AdminIndexRoute
@@ -113,6 +134,9 @@ export interface FileRoutesByTo {
   '/layanan': typeof LayananRoute
   '/reset-password': typeof ResetPasswordRoute
   '/tentang': typeof TentangRoute
+  '/admin/audit': typeof AdminAuditRoute
+  '/admin/backup': typeof AdminBackupRoute
+  '/admin/users': typeof AdminUsersRoute
   '/hooks/queue-worker': typeof HooksQueueWorkerRoute
   '/permohonan/baru': typeof PermohonanBaruRoute
   '/admin': typeof AdminIndexRoute
@@ -129,6 +153,9 @@ export interface FileRoutesById {
   '/layanan': typeof LayananRoute
   '/reset-password': typeof ResetPasswordRoute
   '/tentang': typeof TentangRoute
+  '/admin/audit': typeof AdminAuditRoute
+  '/admin/backup': typeof AdminBackupRoute
+  '/admin/users': typeof AdminUsersRoute
   '/hooks/queue-worker': typeof HooksQueueWorkerRoute
   '/permohonan/baru': typeof PermohonanBaruRoute
   '/admin/': typeof AdminIndexRoute
@@ -146,6 +173,9 @@ export interface FileRouteTypes {
     | '/layanan'
     | '/reset-password'
     | '/tentang'
+    | '/admin/audit'
+    | '/admin/backup'
+    | '/admin/users'
     | '/hooks/queue-worker'
     | '/permohonan/baru'
     | '/admin/'
@@ -161,6 +191,9 @@ export interface FileRouteTypes {
     | '/layanan'
     | '/reset-password'
     | '/tentang'
+    | '/admin/audit'
+    | '/admin/backup'
+    | '/admin/users'
     | '/hooks/queue-worker'
     | '/permohonan/baru'
     | '/admin'
@@ -176,6 +209,9 @@ export interface FileRouteTypes {
     | '/layanan'
     | '/reset-password'
     | '/tentang'
+    | '/admin/audit'
+    | '/admin/backup'
+    | '/admin/users'
     | '/hooks/queue-worker'
     | '/permohonan/baru'
     | '/admin/'
@@ -192,6 +228,9 @@ export interface RootRouteChildren {
   LayananRoute: typeof LayananRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   TentangRoute: typeof TentangRoute
+  AdminAuditRoute: typeof AdminAuditRoute
+  AdminBackupRoute: typeof AdminBackupRoute
+  AdminUsersRoute: typeof AdminUsersRoute
   HooksQueueWorkerRoute: typeof HooksQueueWorkerRoute
   PermohonanBaruRoute: typeof PermohonanBaruRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -285,6 +324,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HooksQueueWorkerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/backup': {
+      id: '/admin/backup'
+      path: '/admin/backup'
+      fullPath: '/admin/backup'
+      preLoaderRoute: typeof AdminBackupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/audit': {
+      id: '/admin/audit'
+      path: '/admin/audit'
+      fullPath: '/admin/audit'
+      preLoaderRoute: typeof AdminAuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/permohonan/$id': {
       id: '/admin/permohonan/$id'
       path: '/admin/permohonan/$id'
@@ -304,6 +364,9 @@ const rootRouteChildren: RootRouteChildren = {
   LayananRoute: LayananRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   TentangRoute: TentangRoute,
+  AdminAuditRoute: AdminAuditRoute,
+  AdminBackupRoute: AdminBackupRoute,
+  AdminUsersRoute: AdminUsersRoute,
   HooksQueueWorkerRoute: HooksQueueWorkerRoute,
   PermohonanBaruRoute: PermohonanBaruRoute,
   AdminIndexRoute: AdminIndexRoute,
@@ -313,3 +376,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
