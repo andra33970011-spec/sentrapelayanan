@@ -21,6 +21,16 @@ async function assertSuperAdmin(userId: string) {
   if (!data) throw new Error("Forbidden: super admin only");
 }
 
+function slugify(s: string) {
+  return s
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 80);
+}
+
 // ============= UBAH ROLE USER =============
 const setRoleSchema = z.object({
   user_id: z.string().uuid(),
@@ -37,14 +47,12 @@ export const setUserRole = createServerFn({ method: "POST" })
     const rl = await checkRateLimit(userId, "set_role", 30, 60);
     if (!rl.ok) throw new Error("Too many requests, try again later");
 
-    // Hapus semua role lama, set role baru (1 user 1 role utama)
     await supabaseAdmin.from("user_roles").delete().eq("user_id", data.user_id);
     const { error: insErr } = await supabaseAdmin
       .from("user_roles")
       .insert({ user_id: data.user_id, role: data.role });
     if (insErr) throw new Error(insErr.message);
 
-    // Update opd_id pada profil (nullable)
     const { error: profErr } = await supabaseAdmin
       .from("profiles")
       .update({ opd_id: data.opd_id ?? null })
@@ -88,7 +96,10 @@ export const enqueueJob = createServerFn({ method: "POST" })
 
 // ============= EXPORT DATA (BACKUP) =============
 const exportSchema = z.object({
-  tabel: z.enum(["profiles", "user_roles", "opd", "permohonan", "permohonan_riwayat", "audit_log", "job_queue"]),
+  tabel: z.enum([
+    "profiles", "user_roles", "opd", "permohonan", "permohonan_riwayat",
+    "audit_log", "job_queue", "kategori_layanan", "berita", "layanan_publik",
+  ]),
 });
 
 export const exportTable = createServerFn({ method: "POST" })
@@ -115,4 +126,370 @@ export const exportTable = createServerFn({ method: "POST" })
     });
 
     return { tabel: data.tabel, rows: rows ?? [], exported_at: new Date().toISOString() };
+  });
+
+// ============= LIST USERS DENGAN EMAIL =============
+// Mengambil daftar user dari auth.users + profil + role + status, untuk Account Management.
+export const listUsers = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { userId } = context;
+    await assertSuperAdmin(userId);
+    const rl = await checkRateLimit(userId, "list_users", 60, 60);
+    if (!rl.ok) throw new Error("Too many requests");
+
+    const { data: list, error } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 });
+    if (error) throw new Error(error.message);
+
+    const ids = list.users.map((u) => u.id);
+    const [{ data: profiles }, { data: roles }] = await Promise.all([
+      supabaseAdmin.from("profiles").select("id,nama_lengkap,nik,no_hp,opd_id,status").in("id", ids),
+      supabaseAdmin.from("user_roles").select("user_id,role").in("user_id", ids),
+    ]);
+    const profMap = new Map(profiles?.map((p) => [p.id, p]) ?? []);
+    const roleMap = new Map(roles?.map((r) => [r.user_id, r.role]) ?? []);
+
+    return {
+      users: list.users.map((u) => ({
+        id: u.id,
+        email: u.email ?? "",
+        last_sign_in_at: u.last_sign_in_at ?? null,
+        created_at: u.created_at,
+        banned_until: (u as unknown as { banned_until?: string | null }).banned_until ?? null,
+        nama_lengkap: profMap.get(u.id)?.nama_lengkap ?? "",
+        nik: profMap.get(u.id)?.nik ?? null,
+        no_hp: profMap.get(u.id)?.no_hp ?? null,
+        opd_id: profMap.get(u.id)?.opd_id ?? null,
+        status: profMap.get(u.id)?.status ?? "active",
+        role: roleMap.get(u.id) ?? "warga",
+      })),
+    };
+  });
+
+// ============= SUSPEND / AKTIFKAN USER =============
+const suspendSchema = z.object({
+  user_id: z.string().uuid(),
+  suspend: z.boolean(),
+});
+
+export const setUserSuspended = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => suspendSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { userId } = context;
+    await assertSuperAdmin(userId);
+    if (data.user_id === userId) throw new Error("Tidak dapat menonaktifkan akun sendiri");
+    const rl = await checkRateLimit(userId, "suspend_user", 30, 60);
+    if (!rl.ok) throw new Error("Too many requests");
+
+    // Ban via auth admin (banned_until far future) + status di profiles
+    const banned_until = data.suspend ? "2099-12-31T00:00:00Z" : "none";
+    const { error: bErr } = await supabaseAdmin.auth.admin.updateUserById(data.user_id, {
+      ban_duration: data.suspend ? "8760h" : "none",
+    } as Parameters<typeof supabaseAdmin.auth.admin.updateUserById>[1]);
+    if (bErr) throw new Error(bErr.message);
+
+    await supabaseAdmin.from("profiles").update({ status: data.suspend ? "suspended" : "active" }).eq("id", data.user_id);
+
+    await supabaseAdmin.from("audit_log").insert({
+      user_id: userId,
+      aksi: data.suspend ? "user.suspended" : "user.activated",
+      entitas: "user",
+      entitas_id: data.user_id,
+      data_sesudah: { banned_until } as never,
+    });
+
+    return { ok: true };
+  });
+
+// ============= FORCE LOGOUT =============
+const userIdSchema = z.object({ user_id: z.string().uuid() });
+
+export const forceSignOut = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => userIdSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { userId } = context;
+    await assertSuperAdmin(userId);
+    const rl = await checkRateLimit(userId, "force_logout", 30, 60);
+    if (!rl.ok) throw new Error("Too many requests");
+
+    const { error } = await supabaseAdmin.auth.admin.signOut(data.user_id, "global");
+    if (error) throw new Error(error.message);
+
+    await supabaseAdmin.from("audit_log").insert({
+      user_id: userId, aksi: "user.force_logout", entitas: "user", entitas_id: data.user_id,
+    });
+    return { ok: true };
+  });
+
+// ============= KIRIM RESET PASSWORD =============
+const resetSchema = z.object({ email: z.string().email() });
+
+export const sendPasswordReset = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => resetSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { userId } = context;
+    await assertSuperAdmin(userId);
+    const rl = await checkRateLimit(userId, "reset_pw", 20, 60);
+    if (!rl.ok) throw new Error("Too many requests");
+
+    const { error } = await supabaseAdmin.auth.admin.generateLink({
+      type: "recovery",
+      email: data.email,
+    });
+    if (error) throw new Error(error.message);
+
+    await supabaseAdmin.from("audit_log").insert({
+      user_id: userId, aksi: "user.password_reset_sent", entitas: "user", user_email: data.email,
+    });
+    return { ok: true };
+  });
+
+// ============= OPD CRUD =============
+const opdSchema = z.object({
+  id: z.string().uuid().optional(),
+  nama: z.string().min(2).max(120),
+  singkatan: z.string().min(1).max(20),
+  kategori: z.array(z.string().min(1).max(40)).max(20).default([]),
+});
+
+export const upsertOpd = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => opdSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { userId } = context;
+    await assertSuperAdmin(userId);
+    const rl = await checkRateLimit(userId, "opd_write", 30, 60);
+    if (!rl.ok) throw new Error("Too many requests");
+
+    const payload = { nama: data.nama, singkatan: data.singkatan, kategori: data.kategori };
+    if (data.id) {
+      const { error } = await supabaseAdmin.from("opd").update(payload).eq("id", data.id);
+      if (error) throw new Error(error.message);
+      await supabaseAdmin.from("audit_log").insert({ user_id: userId, aksi: "opd.updated", entitas: "opd", entitas_id: data.id, data_sesudah: payload as never });
+      return { ok: true, id: data.id };
+    } else {
+      const { data: row, error } = await supabaseAdmin.from("opd").insert(payload).select("id").single();
+      if (error) throw new Error(error.message);
+      await supabaseAdmin.from("audit_log").insert({ user_id: userId, aksi: "opd.created", entitas: "opd", entitas_id: row.id, data_sesudah: payload as never });
+      return { ok: true, id: row.id };
+    }
+  });
+
+export const deleteOpd = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { userId } = context;
+    await assertSuperAdmin(userId);
+    const { error } = await supabaseAdmin.from("opd").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    await supabaseAdmin.from("audit_log").insert({ user_id: userId, aksi: "opd.deleted", entitas: "opd", entitas_id: data.id });
+    return { ok: true };
+  });
+
+// ============= KATEGORI LAYANAN CRUD =============
+const kategoriSchema = z.object({
+  id: z.string().uuid().optional(),
+  nama: z.string().min(2).max(80),
+  sla_hari: z.number().int().min(1).max(365),
+  deskripsi: z.string().max(500).optional().nullable(),
+  aktif: z.boolean().default(true),
+});
+
+export const upsertKategori = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => kategoriSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { userId } = context;
+    await assertSuperAdmin(userId);
+    const rl = await checkRateLimit(userId, "kategori_write", 30, 60);
+    if (!rl.ok) throw new Error("Too many requests");
+    const payload = {
+      nama: data.nama,
+      slug: slugify(data.nama),
+      sla_hari: data.sla_hari,
+      deskripsi: data.deskripsi ?? null,
+      aktif: data.aktif,
+    };
+    if (data.id) {
+      const { error } = await supabaseAdmin.from("kategori_layanan").update(payload).eq("id", data.id);
+      if (error) throw new Error(error.message);
+      return { ok: true, id: data.id };
+    }
+    const { data: row, error } = await supabaseAdmin.from("kategori_layanan").insert(payload).select("id").single();
+    if (error) throw new Error(error.message);
+    return { ok: true, id: row.id };
+  });
+
+export const deleteKategori = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    await assertSuperAdmin(context.userId);
+    const { error } = await supabaseAdmin.from("kategori_layanan").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// ============= BERITA CRUD =============
+const beritaSchema = z.object({
+  id: z.string().uuid().optional(),
+  judul: z.string().min(3).max(200),
+  ringkasan: z.string().max(500).optional().nullable(),
+  isi: z.string().max(50000).default(""),
+  gambar_url: z.string().url().max(1000).optional().nullable(),
+  status: z.enum(["draft", "terbit"]).default("draft"),
+});
+
+export const upsertBerita = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => beritaSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    await assertSuperAdmin(context.userId);
+    const rl = await checkRateLimit(context.userId, "berita_write", 30, 60);
+    if (!rl.ok) throw new Error("Too many requests");
+    const payload = {
+      judul: data.judul,
+      slug: slugify(data.judul) + "-" + Math.random().toString(36).slice(2, 6),
+      ringkasan: data.ringkasan ?? null,
+      isi: data.isi,
+      gambar_url: data.gambar_url ?? null,
+      status: data.status,
+      published_at: data.status === "terbit" ? new Date().toISOString() : null,
+      penulis_id: context.userId,
+    };
+    if (data.id) {
+      const { slug: _omit, ...upd } = payload;
+      void _omit;
+      const { error } = await supabaseAdmin.from("berita").update(upd).eq("id", data.id);
+      if (error) throw new Error(error.message);
+      return { ok: true, id: data.id };
+    }
+    const { data: row, error } = await supabaseAdmin.from("berita").insert(payload).select("id").single();
+    if (error) throw new Error(error.message);
+    return { ok: true, id: row.id };
+  });
+
+export const deleteBerita = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    await assertSuperAdmin(context.userId);
+    const { error } = await supabaseAdmin.from("berita").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// ============= LAYANAN PUBLIK CRUD =============
+const layananSchema = z.object({
+  id: z.string().uuid().optional(),
+  judul: z.string().min(3).max(150),
+  deskripsi: z.string().max(1000).optional().nullable(),
+  ikon: z.string().max(40).optional().nullable(),
+  opd_id: z.string().uuid().optional().nullable(),
+  persyaratan: z.string().max(5000).optional().nullable(),
+  alur: z.string().max(5000).optional().nullable(),
+  aktif: z.boolean().default(true),
+  urutan: z.number().int().min(0).max(9999).default(0),
+});
+
+export const upsertLayanan = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => layananSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    await assertSuperAdmin(context.userId);
+    const rl = await checkRateLimit(context.userId, "layanan_write", 30, 60);
+    if (!rl.ok) throw new Error("Too many requests");
+    const payload = {
+      judul: data.judul,
+      slug: slugify(data.judul),
+      deskripsi: data.deskripsi ?? null,
+      ikon: data.ikon ?? null,
+      opd_id: data.opd_id ?? null,
+      persyaratan: data.persyaratan ?? null,
+      alur: data.alur ?? null,
+      aktif: data.aktif,
+      urutan: data.urutan,
+    };
+    if (data.id) {
+      const { error } = await supabaseAdmin.from("layanan_publik").update(payload).eq("id", data.id);
+      if (error) throw new Error(error.message);
+      return { ok: true, id: data.id };
+    }
+    const { data: row, error } = await supabaseAdmin.from("layanan_publik").insert(payload).select("id").single();
+    if (error) throw new Error(error.message);
+    return { ok: true, id: row.id };
+  });
+
+export const deleteLayanan = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    await assertSuperAdmin(context.userId);
+    const { error } = await supabaseAdmin.from("layanan_publik").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// ============= STORAGE EXPLORER =============
+const listStorageSchema = z.object({
+  prefix: z.string().max(500).default(""),
+});
+
+export const listStorageObjects = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => listStorageSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    await assertSuperAdmin(context.userId);
+    const rl = await checkRateLimit(context.userId, "storage_list", 60, 60);
+    if (!rl.ok) throw new Error("Too many requests");
+
+    const { data: rows, error } = await supabaseAdmin.storage
+      .from("berkas-permohonan")
+      .list(data.prefix, { limit: 200, sortBy: { column: "created_at", order: "desc" } });
+    if (error) throw new Error(error.message);
+
+    // Tambahkan signed URL untuk file (bukan folder)
+    const items = await Promise.all(
+      (rows ?? []).map(async (r) => {
+        const isFolder = !r.id;
+        let signedUrl: string | null = null;
+        if (!isFolder) {
+          const fullPath = data.prefix ? `${data.prefix}/${r.name}` : r.name;
+          const { data: signed } = await supabaseAdmin.storage
+            .from("berkas-permohonan")
+            .createSignedUrl(fullPath, 3600);
+          signedUrl = signed?.signedUrl ?? null;
+        }
+        return {
+          name: r.name,
+          isFolder,
+          size: r.metadata?.size ?? null,
+          mimetype: r.metadata?.mimetype ?? null,
+          updated_at: r.updated_at ?? r.created_at ?? null,
+          signedUrl,
+        };
+      }),
+    );
+    return { items, prefix: data.prefix };
+  });
+
+const deleteStorageSchema = z.object({ path: z.string().min(1).max(1000) });
+
+export const deleteStorageObject = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => deleteStorageSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    await assertSuperAdmin(context.userId);
+    const rl = await checkRateLimit(context.userId, "storage_delete", 30, 60);
+    if (!rl.ok) throw new Error("Too many requests");
+    const { error } = await supabaseAdmin.storage.from("berkas-permohonan").remove([data.path]);
+    if (error) throw new Error(error.message);
+    await supabaseAdmin.from("audit_log").insert({
+      user_id: context.userId, aksi: "storage.deleted", entitas: "storage", entitas_id: data.path,
+    });
+    return { ok: true };
   });
