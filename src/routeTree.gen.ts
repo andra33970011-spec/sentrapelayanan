@@ -18,6 +18,7 @@ import { Route as BeritaRouteImport } from './routes/berita'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as HooksQueueWorkerRouteImport } from './routes/hooks.queue-worker'
 import { Route as AdminPermohonanIdRouteImport } from './routes/admin.permohonan.$id'
 
 const TentangRoute = TentangRouteImport.update({
@@ -65,6 +66,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/admin/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HooksQueueWorkerRoute = HooksQueueWorkerRouteImport.update({
+  id: '/hooks/queue-worker',
+  path: '/hooks/queue-worker',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminPermohonanIdRoute = AdminPermohonanIdRouteImport.update({
   id: '/admin/permohonan/$id',
   path: '/admin/permohonan/$id',
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/layanan': typeof LayananRoute
   '/reset-password': typeof ResetPasswordRoute
   '/tentang': typeof TentangRoute
+  '/hooks/queue-worker': typeof HooksQueueWorkerRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/permohonan/$id': typeof AdminPermohonanIdRoute
 }
@@ -92,6 +99,7 @@ export interface FileRoutesByTo {
   '/layanan': typeof LayananRoute
   '/reset-password': typeof ResetPasswordRoute
   '/tentang': typeof TentangRoute
+  '/hooks/queue-worker': typeof HooksQueueWorkerRoute
   '/admin': typeof AdminIndexRoute
   '/admin/permohonan/$id': typeof AdminPermohonanIdRoute
 }
@@ -105,6 +113,7 @@ export interface FileRoutesById {
   '/layanan': typeof LayananRoute
   '/reset-password': typeof ResetPasswordRoute
   '/tentang': typeof TentangRoute
+  '/hooks/queue-worker': typeof HooksQueueWorkerRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/permohonan/$id': typeof AdminPermohonanIdRoute
 }
@@ -119,6 +128,7 @@ export interface FileRouteTypes {
     | '/layanan'
     | '/reset-password'
     | '/tentang'
+    | '/hooks/queue-worker'
     | '/admin/'
     | '/admin/permohonan/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -131,6 +141,7 @@ export interface FileRouteTypes {
     | '/layanan'
     | '/reset-password'
     | '/tentang'
+    | '/hooks/queue-worker'
     | '/admin'
     | '/admin/permohonan/$id'
   id:
@@ -143,6 +154,7 @@ export interface FileRouteTypes {
     | '/layanan'
     | '/reset-password'
     | '/tentang'
+    | '/hooks/queue-worker'
     | '/admin/'
     | '/admin/permohonan/$id'
   fileRoutesById: FileRoutesById
@@ -156,6 +168,7 @@ export interface RootRouteChildren {
   LayananRoute: typeof LayananRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   TentangRoute: typeof TentangRoute
+  HooksQueueWorkerRoute: typeof HooksQueueWorkerRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminPermohonanIdRoute: typeof AdminPermohonanIdRoute
 }
@@ -225,6 +238,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hooks/queue-worker': {
+      id: '/hooks/queue-worker'
+      path: '/hooks/queue-worker'
+      fullPath: '/hooks/queue-worker'
+      preLoaderRoute: typeof HooksQueueWorkerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/permohonan/$id': {
       id: '/admin/permohonan/$id'
       path: '/admin/permohonan/$id'
@@ -244,9 +264,19 @@ const rootRouteChildren: RootRouteChildren = {
   LayananRoute: LayananRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   TentangRoute: TentangRoute,
+  HooksQueueWorkerRoute: HooksQueueWorkerRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminPermohonanIdRoute: AdminPermohonanIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
