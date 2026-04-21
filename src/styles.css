@@ -141,4 +141,6 @@
   .shadow-glow { box-shadow: var(--shadow-glow); }
   .text-balance { text-wrap: balance; }
   .container-page { width: 100%; max-width: 1200px; margin-inline: auto; padding-inline: 1.25rem; }
+  .input { display: block; width: 100%; height: 2.5rem; border-radius: 0.5rem; border: 1px solid var(--border); background: var(--background); padding-inline: 0.75rem; font-size: 0.875rem; color: var(--foreground); }
+  .input:focus { outline: none; box-shadow: 0 0 0 2px var(--ring); }
 }
