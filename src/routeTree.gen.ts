@@ -10,10 +10,12 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TentangRouteImport } from './routes/tentang'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as LayananRouteImport } from './routes/layanan'
 import { Route as KontakRouteImport } from './routes/kontak'
 import { Route as DataRouteImport } from './routes/data'
 import { Route as BeritaRouteImport } from './routes/berita'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminPermohonanIdRouteImport } from './routes/admin.permohonan.$id'
@@ -21,6 +23,11 @@ import { Route as AdminPermohonanIdRouteImport } from './routes/admin.permohonan
 const TentangRoute = TentangRouteImport.update({
   id: '/tentang',
   path: '/tentang',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LayananRoute = LayananRouteImport.update({
@@ -43,6 +50,11 @@ const BeritaRoute = BeritaRouteImport.update({
   path: '/berita',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -61,20 +73,24 @@ const AdminPermohonanIdRoute = AdminPermohonanIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/berita': typeof BeritaRoute
   '/data': typeof DataRoute
   '/kontak': typeof KontakRoute
   '/layanan': typeof LayananRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/tentang': typeof TentangRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/permohonan/$id': typeof AdminPermohonanIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/berita': typeof BeritaRoute
   '/data': typeof DataRoute
   '/kontak': typeof KontakRoute
   '/layanan': typeof LayananRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/tentang': typeof TentangRoute
   '/admin': typeof AdminIndexRoute
   '/admin/permohonan/$id': typeof AdminPermohonanIdRoute
@@ -82,10 +98,12 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/berita': typeof BeritaRoute
   '/data': typeof DataRoute
   '/kontak': typeof KontakRoute
   '/layanan': typeof LayananRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/tentang': typeof TentangRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/permohonan/$id': typeof AdminPermohonanIdRoute
@@ -94,30 +112,36 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/berita'
     | '/data'
     | '/kontak'
     | '/layanan'
+    | '/reset-password'
     | '/tentang'
     | '/admin/'
     | '/admin/permohonan/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
     | '/berita'
     | '/data'
     | '/kontak'
     | '/layanan'
+    | '/reset-password'
     | '/tentang'
     | '/admin'
     | '/admin/permohonan/$id'
   id:
     | '__root__'
     | '/'
+    | '/auth'
     | '/berita'
     | '/data'
     | '/kontak'
     | '/layanan'
+    | '/reset-password'
     | '/tentang'
     | '/admin/'
     | '/admin/permohonan/$id'
@@ -125,10 +149,12 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
   BeritaRoute: typeof BeritaRoute
   DataRoute: typeof DataRoute
   KontakRoute: typeof KontakRoute
   LayananRoute: typeof LayananRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   TentangRoute: typeof TentangRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminPermohonanIdRoute: typeof AdminPermohonanIdRoute
@@ -141,6 +167,13 @@ declare module '@tanstack/react-router' {
       path: '/tentang'
       fullPath: '/tentang'
       preLoaderRoute: typeof TentangRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/layanan': {
@@ -171,6 +204,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BeritaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -197,10 +237,12 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
   BeritaRoute: BeritaRoute,
   DataRoute: DataRoute,
   KontakRoute: KontakRoute,
   LayananRoute: LayananRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   TentangRoute: TentangRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminPermohonanIdRoute: AdminPermohonanIdRoute,
@@ -208,3 +250,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
