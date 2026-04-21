@@ -83,11 +83,11 @@ function AuditPage() {
                   {r.entitas_id && <div className="font-mono text-[10px] text-muted-foreground">{r.entitas_id.slice(0, 8)}…</div>}
                 </td>
                 <td className="px-4 py-3 text-xs">
-                  {(r.data_sebelum || r.data_sesudah) && (
+                  {(r.data_sebelum || r.data_sesudah) ? (
                     <pre className="max-w-md overflow-x-auto rounded bg-muted p-2 text-[10px] text-foreground">
-{JSON.stringify({ before: r.data_sebelum, after: r.data_sesudah }, null, 0)}
+                      {JSON.stringify({ before: r.data_sebelum, after: r.data_sesudah })}
                     </pre>
-                  )}
+                  ) : null}
                 </td>
               </tr>
             ))}
