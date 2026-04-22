@@ -1,10 +1,10 @@
 // Admin dashboard — DB real.
-// - Super admin: lihat semua OPD; bisa filter by OPD
+// - Super admin: lihat semua OPD; bisa filter by OPD; widget SLA, backlog OPD, status sistem
 // - Admin OPD: otomatis terbatas ke OPD-nya (RLS yang menjamin)
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Inbox, Loader2, CheckCircle2, XCircle, Search, Filter, ArrowUpRight } from "lucide-react";
-import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { Inbox, Loader2, CheckCircle2, XCircle, Search, Filter, ArrowUpRight, Clock, Building2, Database as DbIcon, AlertTriangle, ShieldCheck, Users as UsersIcon, FileClock, Newspaper, Settings, FolderOpen } from "lucide-react";
+import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell } from "recharts";
 import { AdminShell, StatCard } from "@/components/admin/AdminShell";
 import { AdminGuard } from "@/components/admin/AdminGuard";
 import { useAuth } from "@/lib/auth-context";
@@ -49,6 +49,8 @@ function AdminDashboard() {
   const [status, setStatus] = useState<"semua" | StatusPermohonan>("semua");
   const [kategori, setKategori] = useState<string>("semua");
   const [q, setQ] = useState("");
+  const [sysStat, setSysStat] = useState<{ jobs: { pending: number; failed: number; running: number }; users: number; berita: number; layanan: number } | null>(null);
+  const [slaMap, setSlaMap] = useState<Map<string, number>>(new Map());
 
   // Resolve OPD admin
   useEffect(() => {
@@ -126,6 +128,75 @@ function AdminDashboard() {
     return Array.from(m, ([nama, jumlah]) => ({ nama, jumlah })).sort((a, b) => b.jumlah - a.jumlah).slice(0, 8);
   }, [items]);
 
+  // ===== Super Admin only widgets =====
+  useEffect(() => {
+    if (!isSuperAdmin) return;
+    (async () => {
+      const [kat, jobs, usrCount, berCount, layCount] = await Promise.all([
+        supabase.from("kategori_layanan").select("nama,sla_hari"),
+        supabase.from("job_queue").select("status").limit(1000),
+        supabase.from("profiles").select("id", { count: "exact", head: true }),
+        supabase.from("berita").select("id", { count: "exact", head: true }),
+        supabase.from("layanan_publik").select("id", { count: "exact", head: true }),
+      ]);
+      const m = new Map<string, number>();
+      (kat.data ?? []).forEach((k) => m.set(k.nama, k.sla_hari));
+      setSlaMap(m);
+      const counts = { pending: 0, failed: 0, running: 0 };
+      (jobs.data ?? []).forEach((j) => {
+        if (j.status === "pending") counts.pending++;
+        else if (j.status === "failed" || j.status === "dead") counts.failed++;
+        else if (j.status === "running") counts.running++;
+      });
+      setSysStat({
+        jobs: counts,
+        users: usrCount.count ?? 0,
+        berita: berCount.count ?? 0,
+        layanan: layCount.count ?? 0,
+      });
+    })().catch(() => { /* silent */ });
+  }, [isSuperAdmin]);
+
+  const slaPerformance = useMemo(() => {
+    if (!isSuperAdmin || slaMap.size === 0) return [];
+    const buckets = new Map<string, { total: number; on: number }>();
+    items.forEach((p) => {
+      if (p.status !== "selesai") return;
+      const sla = slaMap.get(p.kategori);
+      if (!sla) return;
+      const lamaHari = (Date.now() - new Date(p.tanggal_masuk).getTime()) / 86400000;
+      const b = buckets.get(p.kategori) ?? { total: 0, on: 0 };
+      b.total++;
+      if (lamaHari <= sla) b.on++;
+      buckets.set(p.kategori, b);
+    });
+    return Array.from(buckets, ([nama, v]) => ({
+      nama, persen: v.total ? Math.round((v.on / v.total) * 100) : 0, total: v.total,
+    })).sort((a, b) => b.total - a.total).slice(0, 6);
+  }, [items, slaMap, isSuperAdmin]);
+
+  const opdBacklog = useMemo(() => {
+    if (!isSuperAdmin) return [];
+    const map = new Map<string, { baru: number; diproses: number }>();
+    items.forEach((p) => {
+      if (p.status !== "baru" && p.status !== "diproses") return;
+      const o = opdList.find((x) => x.id === p.opd_id);
+      const key = o?.singkatan ?? "—";
+      const cur = map.get(key) ?? { baru: 0, diproses: 0 };
+      cur[p.status]++;
+      map.set(key, cur);
+    });
+    return Array.from(map, ([nama, v]) => ({ nama, ...v, total: v.baru + v.diproses }))
+      .sort((a, b) => b.total - a.total).slice(0, 6);
+  }, [items, opdList, isSuperAdmin]);
+
+  const statusPie = useMemo(() => ([
+    { name: "Baru", value: kpi.baru, fill: "oklch(0.55 0.16 258)" },
+    { name: "Diproses", value: kpi.diproses, fill: "oklch(0.78 0.14 85)" },
+    { name: "Selesai", value: kpi.selesai, fill: "oklch(0.62 0.14 155)" },
+    { name: "Ditolak", value: kpi.ditolak, fill: "oklch(0.62 0.20 25)" },
+  ].filter((s) => s.value > 0)), [kpi]);
+
   return (
     <AdminShell
       opdAktifId={opdAktifId}
@@ -188,6 +259,121 @@ function AdminDashboard() {
           </div>
         </div>
       </div>
+
+      {isSuperAdmin && (
+        <>
+          <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+            {[
+              { to: "/admin/users", label: "Manajemen User", icon: UsersIcon, tone: "bg-primary-soft text-primary" },
+              { to: "/admin/opd", label: "OPD", icon: Building2, tone: "bg-accent/15 text-accent" },
+              { to: "/admin/config", label: "Kategori & SLA", icon: Settings, tone: "bg-gold/20 text-gold-foreground" },
+              { to: "/admin/cms", label: "CMS Konten", icon: Newspaper, tone: "bg-success/15 text-success" },
+              { to: "/admin/storage", label: "Storage", icon: FolderOpen, tone: "bg-primary-soft text-primary" },
+              { to: "/admin/backup", label: "Backup Data", icon: DbIcon, tone: "bg-destructive/15 text-destructive" },
+            ].map((a) => (
+              <Link key={a.to} to={a.to} className="flex items-center gap-2 rounded-xl border border-border bg-card p-3 shadow-soft hover:border-primary/40 hover:shadow-md">
+                <span className={`grid h-9 w-9 place-items-center rounded-md ${a.tone}`}><a.icon className="h-4 w-4" /></span>
+                <div className="min-w-0">
+                  <div className="truncate text-xs font-semibold text-foreground">{a.label}</div>
+                  <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Buka</div>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          <div className="mt-6 grid gap-4 lg:grid-cols-3">
+            <div className="rounded-xl border border-border bg-card p-4 shadow-soft">
+              <div className="flex items-center justify-between">
+                <h2 className="font-display text-base font-semibold">Status Sistem</h2>
+                <ShieldCheck className="h-4 w-4 text-success" />
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+                <div className="rounded-lg bg-surface p-3"><div className="text-[10px] uppercase tracking-wide text-muted-foreground">Job Pending</div><div className="font-display text-xl font-bold">{sysStat?.jobs.pending ?? "—"}</div></div>
+                <div className="rounded-lg bg-surface p-3"><div className="text-[10px] uppercase tracking-wide text-muted-foreground">Job Failed</div><div className={`font-display text-xl font-bold ${sysStat && sysStat.jobs.failed > 0 ? "text-destructive" : ""}`}>{sysStat?.jobs.failed ?? "—"}</div></div>
+                <div className="rounded-lg bg-surface p-3"><div className="text-[10px] uppercase tracking-wide text-muted-foreground">Total User</div><div className="font-display text-xl font-bold">{sysStat?.users ?? "—"}</div></div>
+                <div className="rounded-lg bg-surface p-3"><div className="text-[10px] uppercase tracking-wide text-muted-foreground">Berita / Layanan</div><div className="font-display text-xl font-bold">{sysStat ? `${sysStat.berita}/${sysStat.layanan}` : "—"}</div></div>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-border bg-card p-4 shadow-soft">
+              <h2 className="font-display text-base font-semibold">Komposisi Status</h2>
+              <p className="text-xs text-muted-foreground">Sebaran permohonan</p>
+              <div className="mt-2 h-56 w-full">
+                {statusPie.length === 0 ? (
+                  <div className="grid h-full place-items-center text-xs text-muted-foreground">Belum ada data</div>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={statusPie} dataKey="value" nameKey="name" innerRadius={48} outerRadius={80} paddingAngle={2}>
+                        {statusPie.map((e, i) => (<Cell key={i} fill={e.fill} />))}
+                      </Pie>
+                      <Tooltip contentStyle={{ background: "oklch(1 0 0)", border: "1px solid oklch(0.91 0.012 250)", borderRadius: 8, fontSize: 12 }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-border bg-card p-4 shadow-soft">
+              <div className="flex items-center justify-between">
+                <h2 className="font-display text-base font-semibold">Top OPD Backlog</h2>
+                <Building2 className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <ul className="mt-3 space-y-1.5">
+                {opdBacklog.length === 0 && <li className="rounded-md bg-surface px-3 py-6 text-center text-xs text-muted-foreground">Tidak ada backlog 🎉</li>}
+                {opdBacklog.map((o) => (
+                  <li key={o.nama} className="flex items-center justify-between rounded-md bg-surface px-3 py-2">
+                    <div>
+                      <div className="text-sm font-semibold">{o.nama}</div>
+                      <div className="text-[10px] text-muted-foreground">{o.baru} baru · {o.diproses} diproses</div>
+                    </div>
+                    <span className="rounded-full bg-destructive/15 px-2 py-0.5 text-xs font-bold text-destructive">{o.total}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-4 rounded-xl border border-border bg-card p-4 shadow-soft">
+            <div className="flex items-center justify-between">
+              <div><h2 className="font-display text-base font-semibold">Kinerja SLA</h2><p className="text-xs text-muted-foreground">% selesai dalam batas SLA per kategori</p></div>
+              <Clock className="h-4 w-4 text-muted-foreground" />
+            </div>
+            {slaPerformance.length === 0 ? (
+              <div className="mt-3 rounded-md bg-surface px-3 py-8 text-center text-xs text-muted-foreground">
+                Belum ada data — atur kategori &amp; SLA di <Link to="/admin/config" className="text-primary hover:underline">Konfigurasi</Link>.
+              </div>
+            ) : (
+              <ul className="mt-3 grid gap-2 md:grid-cols-2">
+                {slaPerformance.map((s) => {
+                  const tone = s.persen >= 80 ? "bg-success" : s.persen >= 50 ? "bg-gold" : "bg-destructive";
+                  return (
+                    <li key={s.nama} className="rounded-lg border border-border bg-surface p-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-semibold">{s.nama}</span>
+                        <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${s.persen >= 80 ? "bg-success/15 text-success" : s.persen >= 50 ? "bg-gold/20 text-gold-foreground" : "bg-destructive/15 text-destructive"}`}>{s.persen}%</span>
+                      </div>
+                      <div className="mt-2 h-1.5 w-full rounded-full bg-border"><div className={`h-full rounded-full ${tone}`} style={{ width: `${s.persen}%` }} /></div>
+                      <div className="mt-1 text-[10px] text-muted-foreground">{s.total} selesai · target {slaMap.get(s.nama)} hari</div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+
+          {sysStat && sysStat.jobs.failed > 0 && (
+            <div className="mt-4 flex gap-3 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm">
+              <AlertTriangle className="h-5 w-5 shrink-0 text-destructive" />
+              <div className="flex-1">
+                <div className="font-semibold text-foreground">Ada {sysStat.jobs.failed} job gagal</div>
+                <p className="text-xs text-muted-foreground">Periksa dari halaman audit / backup.</p>
+              </div>
+              <Link to="/admin/audit" className="self-center rounded-md bg-destructive px-3 py-1.5 text-xs font-semibold text-destructive-foreground">Lihat</Link>
+            </div>
+          )}
+        </>
+      )}
 
       <section id="tabel" className="mt-6 rounded-xl border border-border bg-card shadow-soft">
         <div className="flex flex-col gap-3 border-b border-border p-4 md:flex-row md:items-center">

@@ -40,12 +40,12 @@ function UsersPage() {
   async function load() {
     setLoading(true);
     try {
-      const [{ users: list }, { data: opdRows }] = await Promise.all([
-        listUsers(),
+      const [usersRes, opdRes] = await Promise.all([
+        listUsers().catch((e) => { toast.error((e as Error).message || "Gagal memuat user"); return { users: [] }; }),
         supabase.from("opd").select("id,nama,singkatan").order("nama"),
       ]);
-      setRows(list as Row[]);
-      setOpds((opdRows ?? []) as Opd[]);
+      setRows(((usersRes?.users ?? []) as Row[]));
+      setOpds((opdRes?.data ?? []) as Opd[]);
     } catch (e) { toast.error((e as Error).message); }
     finally { setLoading(false); }
   }

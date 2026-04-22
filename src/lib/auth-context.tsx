@@ -52,6 +52,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => sub.subscription.unsubscribe();
   }, []);
 
+  // Inject Bearer token ke setiap pemanggilan TanStack Server Function
+  // (header `x-tsr-serverfn: true`) agar middleware requireSupabaseAuth menerima sesi user.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const w = window as unknown as { __origFetch?: typeof fetch };
+    if (!w.__origFetch) w.__origFetch = window.fetch.bind(window);
+    const orig = w.__origFetch;
+    window.fetch = async (input, init) => {
+      try {
+        const headers = new Headers(init?.headers ?? (input instanceof Request ? input.headers : undefined));
+        const isServerFn = headers.get("x-tsr-serverfn") === "true";
+        if (isServerFn && !headers.has("authorization")) {
+          const { data } = await supabase.auth.getSession();
+          const token = data.session?.access_token;
+          if (token) {
+            headers.set("authorization", `Bearer ${token}`);
+            return orig(input, { ...init, headers });
+          }
+        }
+      } catch {
+        // fall-through ke fetch asli
+      }
+      return orig(input, init);
+    };
+    return () => {
+      if (w.__origFetch) window.fetch = w.__origFetch;
+    };
+  }, []);
+
   const value: AuthCtx = {
     user,
     session,
