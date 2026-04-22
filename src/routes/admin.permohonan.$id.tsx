@@ -61,32 +61,58 @@ function DetailPermohonan() {
 
   async function load() {
     setLoading(true);
-    const { data: row } = await supabase
-      .from("permohonan")
-      .select("*, opd:opd_id(nama,singkatan), profiles:pemohon_id(nama_lengkap,nik,no_hp)")
-      .eq("id", id)
-      .maybeSingle();
-    if (!row) {
+    try {
+      // Tidak ada FK eksplisit antara permohonan.pemohon_id dan profiles, jadi query terpisah
+      const { data: row, error: rowErr } = await supabase
+        .from("permohonan")
+        .select("*, opd:opd_id(nama,singkatan)")
+        .eq("id", id)
+        .maybeSingle();
+      if (rowErr) {
+        console.error("Gagal memuat permohonan:", rowErr);
+        toast.error(`Gagal memuat permohonan: ${rowErr.message}`);
+        setLoading(false);
+        return;
+      }
+      if (!row) {
+        setLoading(false);
+        return;
+      }
+
+      // Ambil profil pemohon secara terpisah
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("nama_lengkap,nik,no_hp")
+        .eq("id", (row as { pemohon_id: string }).pemohon_id)
+        .maybeSingle();
+
+      const merged = { ...(row as object), profiles: prof ?? null } as unknown as Permohonan;
+      setItem(merged);
+      setStatusBaru((row as { status: StatusPermohonan }).status);
+
+      const { data: rws } = await supabase
+        .from("permohonan_riwayat")
+        .select("id,created_at,aksi,catatan,oleh")
+        .eq("permohonan_id", id)
+        .order("created_at", { ascending: true });
+      setRiwayat((rws ?? []) as Riwayat[]);
+
+      // List berkas: <pemohonId>/<permohonanId>/
+      const folder = `${(row as { pemohon_id: string }).pemohon_id}/${id}`;
+      const { data: files } = await supabase.storage.from("berkas-permohonan").list(folder);
+      setBerkas(
+        (files ?? [])
+          .filter((f) => f && typeof f.name === "string")
+          .map((f) => ({ name: f.name, size: f.metadata?.size ?? 0 })),
+      );
+
+      setPemohonEmail(null);
+    } catch (e) {
+      console.error(e);
+      toast.error(`Gagal memuat data: ${(e as Error).message}`);
+    } finally {
       setLoading(false);
-      return;
     }
-    setItem(row as unknown as Permohonan);
-    setStatusBaru((row as { status: StatusPermohonan }).status);
-
-    const { data: rws } = await supabase
-      .from("permohonan_riwayat")
-      .select("id,created_at,aksi,catatan,oleh")
-      .eq("permohonan_id", id)
-      .order("created_at", { ascending: true });
-    setRiwayat((rws ?? []) as Riwayat[]);
-
-    // List berkas: <pemohonId>/<permohonanId>/
-    const folder = `${(row as { pemohon_id: string }).pemohon_id}/${id}`;
-    const { data: files } = await supabase.storage.from("berkas-permohonan").list(folder);
-    setBerkas((files ?? []).map((f) => ({ name: f.name, size: f.metadata?.size ?? 0 })));
-
-    setPemohonEmail(null);
-    setLoading(false);
   }
 
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [id]);
