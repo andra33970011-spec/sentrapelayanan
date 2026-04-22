@@ -260,6 +260,121 @@ function AdminDashboard() {
         </div>
       </div>
 
+      {isSuperAdmin && (
+        <>
+          <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+            {[
+              { to: "/admin/users", label: "Manajemen User", icon: UsersIcon, tone: "bg-primary-soft text-primary" },
+              { to: "/admin/opd", label: "OPD", icon: Building2, tone: "bg-accent/15 text-accent" },
+              { to: "/admin/config", label: "Kategori & SLA", icon: Settings, tone: "bg-gold/20 text-gold-foreground" },
+              { to: "/admin/cms", label: "CMS Konten", icon: Newspaper, tone: "bg-success/15 text-success" },
+              { to: "/admin/storage", label: "Storage", icon: FolderOpen, tone: "bg-primary-soft text-primary" },
+              { to: "/admin/backup", label: "Backup Data", icon: DbIcon, tone: "bg-destructive/15 text-destructive" },
+            ].map((a) => (
+              <Link key={a.to} to={a.to} className="flex items-center gap-2 rounded-xl border border-border bg-card p-3 shadow-soft hover:border-primary/40 hover:shadow-md">
+                <span className={`grid h-9 w-9 place-items-center rounded-md ${a.tone}`}><a.icon className="h-4 w-4" /></span>
+                <div className="min-w-0">
+                  <div className="truncate text-xs font-semibold text-foreground">{a.label}</div>
+                  <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Buka</div>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          <div className="mt-6 grid gap-4 lg:grid-cols-3">
+            <div className="rounded-xl border border-border bg-card p-4 shadow-soft">
+              <div className="flex items-center justify-between">
+                <h2 className="font-display text-base font-semibold">Status Sistem</h2>
+                <ShieldCheck className="h-4 w-4 text-success" />
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+                <div className="rounded-lg bg-surface p-3"><div className="text-[10px] uppercase tracking-wide text-muted-foreground">Job Pending</div><div className="font-display text-xl font-bold">{sysStat?.jobs.pending ?? "—"}</div></div>
+                <div className="rounded-lg bg-surface p-3"><div className="text-[10px] uppercase tracking-wide text-muted-foreground">Job Failed</div><div className={`font-display text-xl font-bold ${sysStat && sysStat.jobs.failed > 0 ? "text-destructive" : ""}`}>{sysStat?.jobs.failed ?? "—"}</div></div>
+                <div className="rounded-lg bg-surface p-3"><div className="text-[10px] uppercase tracking-wide text-muted-foreground">Total User</div><div className="font-display text-xl font-bold">{sysStat?.users ?? "—"}</div></div>
+                <div className="rounded-lg bg-surface p-3"><div className="text-[10px] uppercase tracking-wide text-muted-foreground">Berita / Layanan</div><div className="font-display text-xl font-bold">{sysStat ? `${sysStat.berita}/${sysStat.layanan}` : "—"}</div></div>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-border bg-card p-4 shadow-soft">
+              <h2 className="font-display text-base font-semibold">Komposisi Status</h2>
+              <p className="text-xs text-muted-foreground">Sebaran permohonan</p>
+              <div className="mt-2 h-56 w-full">
+                {statusPie.length === 0 ? (
+                  <div className="grid h-full place-items-center text-xs text-muted-foreground">Belum ada data</div>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={statusPie} dataKey="value" nameKey="name" innerRadius={48} outerRadius={80} paddingAngle={2}>
+                        {statusPie.map((e, i) => (<Cell key={i} fill={e.fill} />))}
+                      </Pie>
+                      <Tooltip contentStyle={{ background: "oklch(1 0 0)", border: "1px solid oklch(0.91 0.012 250)", borderRadius: 8, fontSize: 12 }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-border bg-card p-4 shadow-soft">
+              <div className="flex items-center justify-between">
+                <h2 className="font-display text-base font-semibold">Top OPD Backlog</h2>
+                <Building2 className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <ul className="mt-3 space-y-1.5">
+                {opdBacklog.length === 0 && <li className="rounded-md bg-surface px-3 py-6 text-center text-xs text-muted-foreground">Tidak ada backlog 🎉</li>}
+                {opdBacklog.map((o) => (
+                  <li key={o.nama} className="flex items-center justify-between rounded-md bg-surface px-3 py-2">
+                    <div>
+                      <div className="text-sm font-semibold">{o.nama}</div>
+                      <div className="text-[10px] text-muted-foreground">{o.baru} baru · {o.diproses} diproses</div>
+                    </div>
+                    <span className="rounded-full bg-destructive/15 px-2 py-0.5 text-xs font-bold text-destructive">{o.total}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-4 rounded-xl border border-border bg-card p-4 shadow-soft">
+            <div className="flex items-center justify-between">
+              <div><h2 className="font-display text-base font-semibold">Kinerja SLA</h2><p className="text-xs text-muted-foreground">% selesai dalam batas SLA per kategori</p></div>
+              <Clock className="h-4 w-4 text-muted-foreground" />
+            </div>
+            {slaPerformance.length === 0 ? (
+              <div className="mt-3 rounded-md bg-surface px-3 py-8 text-center text-xs text-muted-foreground">
+                Belum ada data — atur kategori &amp; SLA di <Link to="/admin/config" className="text-primary hover:underline">Konfigurasi</Link>.
+              </div>
+            ) : (
+              <ul className="mt-3 grid gap-2 md:grid-cols-2">
+                {slaPerformance.map((s) => {
+                  const tone = s.persen >= 80 ? "bg-success" : s.persen >= 50 ? "bg-gold" : "bg-destructive";
+                  return (
+                    <li key={s.nama} className="rounded-lg border border-border bg-surface p-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-semibold">{s.nama}</span>
+                        <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${s.persen >= 80 ? "bg-success/15 text-success" : s.persen >= 50 ? "bg-gold/20 text-gold-foreground" : "bg-destructive/15 text-destructive"}`}>{s.persen}%</span>
+                      </div>
+                      <div className="mt-2 h-1.5 w-full rounded-full bg-border"><div className={`h-full rounded-full ${tone}`} style={{ width: `${s.persen}%` }} /></div>
+                      <div className="mt-1 text-[10px] text-muted-foreground">{s.total} selesai · target {slaMap.get(s.nama)} hari</div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+
+          {sysStat && sysStat.jobs.failed > 0 && (
+            <div className="mt-4 flex gap-3 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm">
+              <AlertTriangle className="h-5 w-5 shrink-0 text-destructive" />
+              <div className="flex-1">
+                <div className="font-semibold text-foreground">Ada {sysStat.jobs.failed} job gagal</div>
+                <p className="text-xs text-muted-foreground">Periksa dari halaman audit / backup.</p>
+              </div>
+              <Link to="/admin/audit" className="self-center rounded-md bg-destructive px-3 py-1.5 text-xs font-semibold text-destructive-foreground">Lihat</Link>
+            </div>
+          )}
+        </>
+      )}
+
       <section id="tabel" className="mt-6 rounded-xl border border-border bg-card shadow-soft">
         <div className="flex flex-col gap-3 border-b border-border p-4 md:flex-row md:items-center">
           <div className="flex items-center gap-2">
