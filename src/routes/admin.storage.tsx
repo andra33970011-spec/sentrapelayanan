@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { Folder, FileIcon, Trash2, ChevronLeft, ExternalLink, RefreshCw } from "lucide-react";
+import { Folder, FileIcon, Trash2, ChevronLeft, ExternalLink, RefreshCw, AlertCircle } from "lucide-react";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { AdminGuard } from "@/components/admin/AdminGuard";
 import { useAuth } from "@/lib/auth-context";
