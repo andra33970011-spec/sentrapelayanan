@@ -1,10 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import {
-  FileText, IdCard, Building2, GraduationCap, HeartPulse, Truck,
-  ArrowRight, ShieldCheck, Database, Users, Megaphone, Search,
+  ArrowRight, ShieldCheck, Database, Users, Megaphone, Search, LayoutGrid,
 } from "lucide-react";
 import { PageShell } from "@/components/site/PageShell";
+import { supabase } from "@/integrations/supabase/client";
 import heroImg from "@/assets/hero-city.jpg";
 
 export const Route = createFileRoute("/")({
