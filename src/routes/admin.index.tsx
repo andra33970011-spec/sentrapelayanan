@@ -49,6 +49,8 @@ function AdminDashboard() {
   const [status, setStatus] = useState<"semua" | StatusPermohonan>("semua");
   const [kategori, setKategori] = useState<string>("semua");
   const [q, setQ] = useState("");
+  const [sysStat, setSysStat] = useState<{ jobs: { pending: number; failed: number; running: number }; users: number; berita: number; layanan: number } | null>(null);
+  const [slaMap, setSlaMap] = useState<Map<string, number>>(new Map());
 
   // Resolve OPD admin
   useEffect(() => {
