@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageShell, PageHero } from "@/components/site/PageShell";
 import { LayoutGrid, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/layanan")({
 });
 
 type Layanan = {
-  id: string; judul: string; deskripsi: string | null; persyaratan: string | null;
+  id: string; judul: string; slug: string; deskripsi: string | null; persyaratan: string | null;
   alur: string | null; opd_id: string | null;
 };
 type Opd = { id: string; singkatan: string };
@@ -29,7 +29,7 @@ function LayananPage() {
 
   useEffect(() => {
     Promise.all([
-      supabase.from("layanan_publik").select("id,judul,deskripsi,persyaratan,alur,opd_id").eq("aktif", true).order("urutan"),
+      supabase.from("layanan_publik").select("id,judul,slug,deskripsi,persyaratan,alur,opd_id").eq("aktif", true).order("urutan"),
       supabase.from("opd").select("id,singkatan"),
     ]).then(([{ data }, { data: o }]) => {
       setItems((data ?? []) as Layanan[]);
@@ -60,9 +60,14 @@ function LayananPage() {
 
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {items.map((l) => (
-            <article key={l.id} className="rounded-2xl border border-border bg-card p-6 shadow-soft transition-shadow hover:shadow-elevated">
+            <Link
+              key={l.id}
+              to="/layanan/$slug"
+              params={{ slug: l.slug }}
+              className="group flex flex-col rounded-2xl border border-border bg-card p-6 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-elevated"
+            >
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary-soft text-primary">
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary-soft text-primary transition-transform group-hover:scale-110">
                   <LayoutGrid className="h-5 w-5" />
                 </div>
                 <div>
@@ -70,23 +75,11 @@ function LayananPage() {
                   {l.opd_id && opds[l.opd_id] && <div className="text-xs text-muted-foreground">{opds[l.opd_id]}</div>}
                 </div>
               </div>
-              {l.deskripsi && <p className="mt-4 text-sm text-muted-foreground">{l.deskripsi}</p>}
-              {l.persyaratan && (
-                <details className="mt-4 rounded-md border border-border bg-surface p-3 text-sm">
-                  <summary className="cursor-pointer font-medium">Persyaratan</summary>
-                  <pre className="mt-2 whitespace-pre-wrap font-sans text-xs text-muted-foreground">{l.persyaratan}</pre>
-                </details>
-              )}
-              {l.alur && (
-                <details className="mt-2 rounded-md border border-border bg-surface p-3 text-sm">
-                  <summary className="cursor-pointer font-medium">Alur layanan</summary>
-                  <pre className="mt-2 whitespace-pre-wrap font-sans text-xs text-muted-foreground">{l.alur}</pre>
-                </details>
-              )}
-              <a href="/permohonan/baru" className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-primary">
-                Ajukan permohonan <ChevronRight className="h-4 w-4" />
-              </a>
-            </article>
+              {l.deskripsi && <p className="mt-4 line-clamp-3 text-sm text-muted-foreground">{l.deskripsi}</p>}
+              <span className="mt-auto pt-5 inline-flex items-center gap-1 text-sm font-semibold text-primary">
+                Lihat detail <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </span>
+            </Link>
           ))}
         </div>
       </section>

@@ -20,6 +20,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as PermohonanIndexRouteImport } from './routes/permohonan.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as PermohonanBaruRouteImport } from './routes/permohonan.baru'
+import { Route as LayananSlugRouteImport } from './routes/layanan.$slug'
 import { Route as HooksQueueWorkerRouteImport } from './routes/hooks.queue-worker'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminStorageRouteImport } from './routes/admin.storage'
@@ -85,6 +86,11 @@ const PermohonanBaruRoute = PermohonanBaruRouteImport.update({
   path: '/permohonan/baru',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LayananSlugRoute = LayananSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => LayananRoute,
+} as any)
 const HooksQueueWorkerRoute = HooksQueueWorkerRouteImport.update({
   id: '/hooks/queue-worker',
   path: '/hooks/queue-worker',
@@ -137,7 +143,7 @@ export interface FileRoutesByFullPath {
   '/berita': typeof BeritaRoute
   '/data': typeof DataRoute
   '/kontak': typeof KontakRoute
-  '/layanan': typeof LayananRoute
+  '/layanan': typeof LayananRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/tentang': typeof TentangRoute
   '/admin/audit': typeof AdminAuditRoute
@@ -148,6 +154,7 @@ export interface FileRoutesByFullPath {
   '/admin/storage': typeof AdminStorageRoute
   '/admin/users': typeof AdminUsersRoute
   '/hooks/queue-worker': typeof HooksQueueWorkerRoute
+  '/layanan/$slug': typeof LayananSlugRoute
   '/permohonan/baru': typeof PermohonanBaruRoute
   '/admin/': typeof AdminIndexRoute
   '/permohonan/': typeof PermohonanIndexRoute
@@ -159,7 +166,7 @@ export interface FileRoutesByTo {
   '/berita': typeof BeritaRoute
   '/data': typeof DataRoute
   '/kontak': typeof KontakRoute
-  '/layanan': typeof LayananRoute
+  '/layanan': typeof LayananRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/tentang': typeof TentangRoute
   '/admin/audit': typeof AdminAuditRoute
@@ -170,6 +177,7 @@ export interface FileRoutesByTo {
   '/admin/storage': typeof AdminStorageRoute
   '/admin/users': typeof AdminUsersRoute
   '/hooks/queue-worker': typeof HooksQueueWorkerRoute
+  '/layanan/$slug': typeof LayananSlugRoute
   '/permohonan/baru': typeof PermohonanBaruRoute
   '/admin': typeof AdminIndexRoute
   '/permohonan': typeof PermohonanIndexRoute
@@ -182,7 +190,7 @@ export interface FileRoutesById {
   '/berita': typeof BeritaRoute
   '/data': typeof DataRoute
   '/kontak': typeof KontakRoute
-  '/layanan': typeof LayananRoute
+  '/layanan': typeof LayananRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/tentang': typeof TentangRoute
   '/admin/audit': typeof AdminAuditRoute
@@ -193,6 +201,7 @@ export interface FileRoutesById {
   '/admin/storage': typeof AdminStorageRoute
   '/admin/users': typeof AdminUsersRoute
   '/hooks/queue-worker': typeof HooksQueueWorkerRoute
+  '/layanan/$slug': typeof LayananSlugRoute
   '/permohonan/baru': typeof PermohonanBaruRoute
   '/admin/': typeof AdminIndexRoute
   '/permohonan/': typeof PermohonanIndexRoute
@@ -217,6 +226,7 @@ export interface FileRouteTypes {
     | '/admin/storage'
     | '/admin/users'
     | '/hooks/queue-worker'
+    | '/layanan/$slug'
     | '/permohonan/baru'
     | '/admin/'
     | '/permohonan/'
@@ -239,6 +249,7 @@ export interface FileRouteTypes {
     | '/admin/storage'
     | '/admin/users'
     | '/hooks/queue-worker'
+    | '/layanan/$slug'
     | '/permohonan/baru'
     | '/admin'
     | '/permohonan'
@@ -261,6 +272,7 @@ export interface FileRouteTypes {
     | '/admin/storage'
     | '/admin/users'
     | '/hooks/queue-worker'
+    | '/layanan/$slug'
     | '/permohonan/baru'
     | '/admin/'
     | '/permohonan/'
@@ -273,7 +285,7 @@ export interface RootRouteChildren {
   BeritaRoute: typeof BeritaRoute
   DataRoute: typeof DataRoute
   KontakRoute: typeof KontakRoute
-  LayananRoute: typeof LayananRoute
+  LayananRoute: typeof LayananRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
   TentangRoute: typeof TentangRoute
   AdminAuditRoute: typeof AdminAuditRoute
@@ -369,6 +381,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PermohonanBaruRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/layanan/$slug': {
+      id: '/layanan/$slug'
+      path: '/$slug'
+      fullPath: '/layanan/$slug'
+      preLoaderRoute: typeof LayananSlugRouteImport
+      parentRoute: typeof LayananRoute
+    }
     '/hooks/queue-worker': {
       id: '/hooks/queue-worker'
       path: '/hooks/queue-worker'
@@ -435,13 +454,24 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface LayananRouteChildren {
+  LayananSlugRoute: typeof LayananSlugRoute
+}
+
+const LayananRouteChildren: LayananRouteChildren = {
+  LayananSlugRoute: LayananSlugRoute,
+}
+
+const LayananRouteWithChildren =
+  LayananRoute._addFileChildren(LayananRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   BeritaRoute: BeritaRoute,
   DataRoute: DataRoute,
   KontakRoute: KontakRoute,
-  LayananRoute: LayananRoute,
+  LayananRoute: LayananRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
   TentangRoute: TentangRoute,
   AdminAuditRoute: AdminAuditRoute,
