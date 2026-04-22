@@ -66,12 +66,12 @@ function LayananPage() {
   }, [items, search.q, search.opd]);
 
   const setOpd = (opdId: string | undefined) => {
-    navigate({ search: (prev) => ({ ...prev, opd: opdId }), replace: true });
+    navigate({ search: (prev: LayananSearch) => ({ ...prev, opd: opdId }), replace: true });
   };
 
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    navigate({ search: (prev) => ({ ...prev, q: qInput.trim() || undefined }), replace: true });
+    navigate({ search: (prev: LayananSearch) => ({ ...prev, q: qInput.trim() || undefined }), replace: true });
   };
 
   const clearAll = () => {
