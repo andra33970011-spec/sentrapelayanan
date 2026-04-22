@@ -144,7 +144,7 @@ export function AdminShell({
               </nav>
             </div>
           )}
-          <div className="p-4 md:p-6">{children}</div>
+          <div className="p-4 md:p-6 animate-page-in">{children}</div>
         </main>
       </div>
     </div>
