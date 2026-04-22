@@ -95,34 +95,38 @@ function StoragePage() {
           <tbody>
             {loading && <tr><td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">Memuat…</td></tr>}
             {!loading && items.length === 0 && <tr><td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">Folder kosong.</td></tr>}
-            {items.map((it) => (
-              <tr key={it.name} className="border-t border-border">
-                <td className="px-4 py-3">
-                  {it.isFolder ? (
-                    <button onClick={() => enter(it.name)} className="inline-flex items-center gap-2 font-medium text-primary hover:underline">
-                      <Folder className="h-4 w-4" /> {it.name}/
-                    </button>
-                  ) : (
-                    <span className="inline-flex items-center gap-2"><FileIcon className="h-4 w-4 text-muted-foreground" /> {it.name}</span>
-                  )}
-                </td>
-                <td className="px-4 py-3 text-xs text-muted-foreground">{it.isFolder ? "folder" : (it.mimetype ?? "file")}</td>
-                <td className="px-4 py-3 text-xs">{it.size != null ? formatBytes(it.size) : "—"}</td>
-                <td className="px-4 py-3 text-xs text-muted-foreground">{it.updated_at ? new Date(it.updated_at).toLocaleString("id-ID") : "—"}</td>
-                <td className="px-4 py-3 text-right">
-                  {!it.isFolder && it.signedUrl && (
-                    <a href={it.signedUrl} target="_blank" rel="noreferrer" className="mr-2 inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1.5 text-xs hover:bg-muted">
-                      <ExternalLink className="h-3.5 w-3.5" /> Buka
-                    </a>
-                  )}
-                  {!it.isFolder && (
-                    <button onClick={() => hapus(it.name)} className="inline-flex items-center gap-1 rounded-md border border-destructive/40 px-2.5 py-1.5 text-xs text-destructive hover:bg-destructive/10">
-                      <Trash2 className="h-3.5 w-3.5" /> Hapus
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
+            {items.map((it) => {
+              const name = it?.name ?? "(tanpa nama)";
+              const isFolder = !!it?.isFolder;
+              return (
+                <tr key={name} className="border-t border-border">
+                  <td className="px-4 py-3">
+                    {isFolder ? (
+                      <button onClick={() => enter(name)} className="inline-flex items-center gap-2 font-medium text-primary hover:underline">
+                        <Folder className="h-4 w-4" /> {name}/
+                      </button>
+                    ) : (
+                      <span className="inline-flex items-center gap-2"><FileIcon className="h-4 w-4 text-muted-foreground" /> {name}</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground">{isFolder ? "folder" : (it?.mimetype ?? "file")}</td>
+                  <td className="px-4 py-3 text-xs">{it?.size != null ? formatBytes(it.size) : "—"}</td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground">{it?.updated_at ? new Date(it.updated_at).toLocaleString("id-ID") : "—"}</td>
+                  <td className="px-4 py-3 text-right">
+                    {!isFolder && it?.signedUrl && (
+                      <a href={it.signedUrl} target="_blank" rel="noreferrer" className="mr-2 inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1.5 text-xs hover:bg-muted">
+                        <ExternalLink className="h-3.5 w-3.5" /> Buka
+                      </a>
+                    )}
+                    {!isFolder && (
+                      <button onClick={() => hapus(name)} className="inline-flex items-center gap-1 rounded-md border border-destructive/40 px-2.5 py-1.5 text-xs text-destructive hover:bg-destructive/10">
+                        <Trash2 className="h-3.5 w-3.5" /> Hapus
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
