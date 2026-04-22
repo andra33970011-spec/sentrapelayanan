@@ -20,14 +20,9 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
-const layananUtama = [
-  { icon: IdCard, title: "Adminduk", desc: "KTP, KK, akta kelahiran" },
-  { icon: Building2, title: "Perizinan", desc: "IMB, izin usaha, OSS" },
-  { icon: HeartPulse, title: "Kesehatan", desc: "BPJS, faskes, vaksin" },
-  { icon: GraduationCap, title: "Pendidikan", desc: "PPDB, beasiswa" },
-  { icon: Truck, title: "Bantuan Sosial", desc: "DTKS & PKH" },
-  { icon: FileText, title: "Pajak & Retribusi", desc: "PBB, BPHTB" },
-];
+type LayananRow = {
+  id: string; judul: string; slug: string; deskripsi: string | null;
+};
 
 const stats = [
   { label: "Layanan Online", value: "127" },
