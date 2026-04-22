@@ -87,6 +87,23 @@ function StoragePage() {
         <div className="ml-2 truncate rounded-md bg-muted px-3 py-1.5 text-xs font-mono">/ {prefix || "(root)"}</div>
       </div>
 
+      {loadError && (
+        <div className="mb-3 flex items-start gap-3 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm">
+          <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
+          <div className="flex-1">
+            <div className="font-medium text-destructive">Gagal memuat storage</div>
+            <div className="mt-0.5 text-xs text-destructive/80 break-words">{loadError}</div>
+          </div>
+          <button
+            onClick={retry}
+            disabled={loading}
+            className="inline-flex shrink-0 items-center gap-1 rounded-md border border-destructive/40 bg-background px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 disabled:opacity-50"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} /> Coba lagi
+          </button>
+        </div>
+      )}
+
       <div className="overflow-hidden rounded-xl border border-border bg-card shadow-soft">
         <table className="w-full text-sm">
           <thead className="bg-surface text-left text-xs uppercase tracking-wide text-muted-foreground">
@@ -100,7 +117,15 @@ function StoragePage() {
           </thead>
           <tbody>
             {loading && <tr><td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">Memuat…</td></tr>}
-            {!loading && items.length === 0 && <tr><td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">Folder kosong.</td></tr>}
+            {!loading && loadError && items.length === 0 && (
+              <tr><td colSpan={5} className="px-4 py-12 text-center">
+                <div className="text-muted-foreground">Tidak dapat menampilkan berkas.</div>
+                <button onClick={retry} className="mt-3 inline-flex items-center gap-1 rounded-md border border-border px-3 py-1.5 text-sm hover:bg-muted">
+                  <RefreshCw className="h-4 w-4" /> Coba lagi
+                </button>
+              </td></tr>
+            )}
+            {!loading && !loadError && items.length === 0 && <tr><td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">Folder kosong.</td></tr>}
             {items.map((it) => {
               const name = it?.name ?? "(tanpa nama)";
               const isFolder = !!it?.isFolder;
