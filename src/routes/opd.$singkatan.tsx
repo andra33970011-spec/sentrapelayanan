@@ -88,7 +88,7 @@ function OpdDetailPage() {
   };
 
   const goPage = (p: number) => {
-    navigate({ search: (prev) => ({ ...prev, page: p }), replace: true });
+    navigate({ search: (prev: OpdSearch) => ({ ...prev, page: p }), replace: true });
   };
 
   if (notFoundFlag) throw notFound();
