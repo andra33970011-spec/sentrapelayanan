@@ -29,11 +29,16 @@ function StoragePage() {
     setLoading(true);
     try {
       const res = await listStorageObjects({ data: { prefix: p } });
-      setItems(Array.isArray(res?.items) ? res.items : []);
+      const safeItems = Array.isArray(res?.items)
+        ? res.items.filter((it): it is Item => it != null && typeof it.name === "string")
+        : [];
+      setItems(safeItems);
       setPrefix(typeof res?.prefix === "string" ? res.prefix : p);
     } catch (e) {
       setItems([]);
-      toast.error((e as Error).message || "Gagal memuat storage");
+      const msg = (e as Error)?.message || "Gagal memuat storage";
+      toast.error(`Gagal memuat storage: ${msg}`);
+      console.error("[admin.storage] load error", e);
     }
     finally { setLoading(false); }
   }
