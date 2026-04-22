@@ -32,6 +32,25 @@ const stats = [
 ];
 
 function HomePage() {
+  const [layanan, setLayanan] = useState<LayananRow[]>([]);
+  const [q, setQ] = useState("");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    supabase
+      .from("layanan_publik")
+      .select("id,judul,slug,deskripsi")
+      .eq("aktif", true)
+      .order("urutan")
+      .limit(6)
+      .then(({ data }) => setLayanan((data ?? []) as LayananRow[]));
+  }, []);
+
+  const submitSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    navigate({ to: "/layanan", search: { q: q.trim() || undefined } as never });
+  };
+
   return (
     <PageShell>
       {/* HERO */}
@@ -69,16 +88,18 @@ function HomePage() {
             </div>
 
             {/* Search bar */}
-            <div className="mt-8 flex max-w-xl items-center gap-2 rounded-xl border border-white/20 bg-white/95 p-2 shadow-elevated">
+            <form onSubmit={submitSearch} className="mt-8 flex max-w-xl items-center gap-2 rounded-xl border border-white/20 bg-white/95 p-2 shadow-elevated">
               <Search className="ml-2 h-5 w-5 text-muted-foreground" />
               <input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
                 placeholder="Cari layanan: KTP, IMB, beasiswa…"
                 className="flex-1 bg-transparent px-2 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground"
               />
-              <button className="rounded-md bg-gradient-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
+              <button type="submit" className="rounded-md bg-gradient-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
                 Cari
               </button>
-            </div>
+            </form>
           </motion.div>
 
           <motion.div
@@ -99,7 +120,7 @@ function HomePage() {
         </div>
       </section>
 
-      {/* LAYANAN UTAMA */}
+      {/* LAYANAN UTAMA — sinkron dengan database */}
       <section className="container-page py-16 md:py-24">
         <div className="flex items-end justify-between gap-4">
           <div>
@@ -111,26 +132,39 @@ function HomePage() {
           </Link>
         </div>
 
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {layananUtama.map((s) => (
-            <motion.div
-              key={s.title}
-              whileHover={{ y: -4 }}
-              className="group rounded-2xl border border-border bg-card p-6 shadow-soft transition-shadow hover:shadow-elevated"
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-soft text-primary">
-                <s.icon className="h-6 w-6" />
-              </div>
-              <h3 className="mt-5 text-lg font-semibold">{s.title}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{s.desc}</p>
-              <div className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
-                Akses layanan <ArrowRight className="h-4 w-4" />
-              </div>
-            </motion.div>
-          ))}
+        {layanan.length === 0 ? (
+          <div className="mt-10 rounded-2xl border border-dashed border-border bg-card p-12 text-center text-muted-foreground">
+            Memuat layanan…
+          </div>
+        ) : (
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {layanan.map((s) => (
+              <motion.div key={s.id} whileHover={{ y: -4 }}>
+                <Link
+                  to="/layanan/$slug"
+                  params={{ slug: s.slug }}
+                  className="group block h-full rounded-2xl border border-border bg-card p-6 shadow-soft transition-shadow hover:shadow-elevated"
+                >
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-soft text-primary">
+                    <LayoutGrid className="h-6 w-6" />
+                  </div>
+                  <h3 className="mt-5 text-lg font-semibold">{s.judul}</h3>
+                  {s.deskripsi && <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{s.deskripsi}</p>}
+                  <div className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
+                    Akses layanan <ArrowRight className="h-4 w-4" />
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        )}
+
+        <div className="mt-8 text-center md:hidden">
+          <Link to="/layanan" className="inline-flex items-center gap-1 text-sm font-semibold text-primary">
+            Lihat semua layanan <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
       </section>
-
       {/* PILAR */}
       <section className="bg-surface py-16 md:py-24">
         <div className="container-page grid gap-10 lg:grid-cols-3">
