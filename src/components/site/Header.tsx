@@ -59,7 +59,7 @@ export function Header() {
         <Link to="/" className="flex items-center gap-3">
           <img src={lambang} alt="Lambang" width={40} height={40} className="h-10 w-10" />
           <div className="leading-tight">
-            <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Pemerintah Kota</div>
+            <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-sans">PEMERINTAH KABUPATEN</div>
             <div className="font-display text-base font-bold text-foreground">Kabupaten Buton Selatan</div>
           </div>
         </Link>
