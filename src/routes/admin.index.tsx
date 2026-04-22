@@ -128,6 +128,75 @@ function AdminDashboard() {
     return Array.from(m, ([nama, jumlah]) => ({ nama, jumlah })).sort((a, b) => b.jumlah - a.jumlah).slice(0, 8);
   }, [items]);
 
+  // ===== Super Admin only widgets =====
+  useEffect(() => {
+    if (!isSuperAdmin) return;
+    (async () => {
+      const [kat, jobs, usrCount, berCount, layCount] = await Promise.all([
+        supabase.from("kategori_layanan").select("nama,sla_hari"),
+        supabase.from("job_queue").select("status").limit(1000),
+        supabase.from("profiles").select("id", { count: "exact", head: true }),
+        supabase.from("berita").select("id", { count: "exact", head: true }),
+        supabase.from("layanan_publik").select("id", { count: "exact", head: true }),
+      ]);
+      const m = new Map<string, number>();
+      (kat.data ?? []).forEach((k) => m.set(k.nama, k.sla_hari));
+      setSlaMap(m);
+      const counts = { pending: 0, failed: 0, running: 0 };
+      (jobs.data ?? []).forEach((j) => {
+        if (j.status === "pending") counts.pending++;
+        else if (j.status === "failed" || j.status === "dead") counts.failed++;
+        else if (j.status === "running") counts.running++;
+      });
+      setSysStat({
+        jobs: counts,
+        users: usrCount.count ?? 0,
+        berita: berCount.count ?? 0,
+        layanan: layCount.count ?? 0,
+      });
+    })().catch(() => { /* silent */ });
+  }, [isSuperAdmin]);
+
+  const slaPerformance = useMemo(() => {
+    if (!isSuperAdmin || slaMap.size === 0) return [];
+    const buckets = new Map<string, { total: number; on: number }>();
+    items.forEach((p) => {
+      if (p.status !== "selesai") return;
+      const sla = slaMap.get(p.kategori);
+      if (!sla) return;
+      const lamaHari = (Date.now() - new Date(p.tanggal_masuk).getTime()) / 86400000;
+      const b = buckets.get(p.kategori) ?? { total: 0, on: 0 };
+      b.total++;
+      if (lamaHari <= sla) b.on++;
+      buckets.set(p.kategori, b);
+    });
+    return Array.from(buckets, ([nama, v]) => ({
+      nama, persen: v.total ? Math.round((v.on / v.total) * 100) : 0, total: v.total,
+    })).sort((a, b) => b.total - a.total).slice(0, 6);
+  }, [items, slaMap, isSuperAdmin]);
+
+  const opdBacklog = useMemo(() => {
+    if (!isSuperAdmin) return [];
+    const map = new Map<string, { baru: number; diproses: number }>();
+    items.forEach((p) => {
+      if (p.status !== "baru" && p.status !== "diproses") return;
+      const o = opdList.find((x) => x.id === p.opd_id);
+      const key = o?.singkatan ?? "—";
+      const cur = map.get(key) ?? { baru: 0, diproses: 0 };
+      cur[p.status]++;
+      map.set(key, cur);
+    });
+    return Array.from(map, ([nama, v]) => ({ nama, ...v, total: v.baru + v.diproses }))
+      .sort((a, b) => b.total - a.total).slice(0, 6);
+  }, [items, opdList, isSuperAdmin]);
+
+  const statusPie = useMemo(() => ([
+    { name: "Baru", value: kpi.baru, fill: "oklch(0.55 0.16 258)" },
+    { name: "Diproses", value: kpi.diproses, fill: "oklch(0.78 0.14 85)" },
+    { name: "Selesai", value: kpi.selesai, fill: "oklch(0.62 0.14 155)" },
+    { name: "Ditolak", value: kpi.ditolak, fill: "oklch(0.62 0.20 25)" },
+  ].filter((s) => s.value > 0)), [kpi]);
+
   return (
     <AdminShell
       opdAktifId={opdAktifId}
