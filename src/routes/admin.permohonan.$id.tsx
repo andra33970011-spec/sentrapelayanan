@@ -184,7 +184,7 @@ function DetailPermohonan() {
   if (loading) {
     return (
       <AdminShell breadcrumb={[{ label: "Permohonan", to: "/admin" }, { label: id }]}>
-        <div className="grid place-items-center py-20"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+        <DetailSkeleton />
       </AdminShell>
     );
   }
