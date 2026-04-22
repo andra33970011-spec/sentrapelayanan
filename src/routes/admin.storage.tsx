@@ -29,9 +29,12 @@ function StoragePage() {
     setLoading(true);
     try {
       const res = await listStorageObjects({ data: { prefix: p } });
-      setItems(res.items);
-      setPrefix(res.prefix);
-    } catch (e) { toast.error((e as Error).message); }
+      setItems(Array.isArray(res?.items) ? res.items : []);
+      setPrefix(typeof res?.prefix === "string" ? res.prefix : p);
+    } catch (e) {
+      setItems([]);
+      toast.error((e as Error).message || "Gagal memuat storage");
+    }
     finally { setLoading(false); }
   }
   useEffect(() => { if (isSuperAdmin) load(""); }, [isSuperAdmin]);
