@@ -204,145 +204,197 @@ function DetailPermohonan() {
 
   return (
     <AdminShell breadcrumb={[{ label: "Permohonan", to: "/admin" }, { label: item.kode }]}>
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <div className="min-w-0">
-          <div className="text-xs text-muted-foreground">{item.opd?.singkatan} · {item.kategori}</div>
-          <h1 className="truncate font-display text-xl font-bold md:text-2xl">{item.judul}</h1>
-          <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
-            <span className="font-mono text-muted-foreground">{item.kode}</span>
-            <span className={`rounded-full border px-2 py-0.5 font-medium ${STATUS_TONE[item.status]}`}>{STATUS_LABEL[item.status]}</span>
-            {item.prioritas && (
-              <span className="rounded-full border border-border px-2 py-0.5 text-muted-foreground capitalize">Prioritas: {item.prioritas}</span>
-            )}
+      <div className="animate-fade-in">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 flex-1">
+            <div className="text-xs text-muted-foreground">{item.opd?.singkatan} · {item.kategori}</div>
+            <h1 className="font-display text-xl font-bold leading-tight md:text-2xl">{item.judul}</h1>
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+              <span className="font-mono text-muted-foreground">{item.kode}</span>
+              <span className={`rounded-full border px-2 py-0.5 font-medium transition-colors ${STATUS_TONE[item.status]}`}>{STATUS_LABEL[item.status]}</span>
+              {item.prioritas && (
+                <span className="rounded-full border border-border px-2 py-0.5 capitalize text-muted-foreground">Prioritas: {item.prioritas}</span>
+              )}
+            </div>
           </div>
+          <Link to="/admin" className="inline-flex shrink-0 items-center gap-1 self-start text-sm text-primary transition-colors hover:underline">
+            <ArrowLeft className="h-4 w-4" /> Daftar
+          </Link>
         </div>
-        <Link to="/admin" className="hidden sm:inline-flex items-center gap-1 text-sm text-primary hover:underline">
-          <ArrowLeft className="h-4 w-4" /> Daftar
-        </Link>
-      </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <div className="space-y-4 lg:col-span-2">
-          <div className="rounded-xl border border-border bg-card p-5 shadow-soft">
-            <h2 className="mb-3 font-display text-sm font-semibold uppercase tracking-wide text-muted-foreground">Data Pemohon</h2>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Field icon={IdCard} label="Nama">{item.profiles?.nama_lengkap || "—"}</Field>
-              <Field icon={IdCard} label="NIK">{item.profiles?.nik || "—"}</Field>
-              <Field icon={Phone} label="Telepon">{item.profiles?.no_hp || "—"}</Field>
-              <Field icon={Mail} label="Email">{pemohonEmail || "—"}</Field>
-            </div>
-          </div>
-
-          {item.deskripsi && (
-            <div className="rounded-xl border border-border bg-card p-5 shadow-soft">
-              <h2 className="mb-2 font-display text-sm font-semibold uppercase tracking-wide text-muted-foreground">Deskripsi</h2>
-              <p className="text-sm text-foreground whitespace-pre-wrap">{item.deskripsi}</p>
-              <div className="mt-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
-                <span>Diajukan: <strong className="text-foreground">{fmtDateTime(item.tanggal_masuk)}</strong></span>
-                {item.tenggat && <span>Tenggat: <strong className="text-foreground">{fmtDateTime(item.tenggat)}</strong></span>}
+        <div className="grid gap-4 lg:grid-cols-3">
+          <div className="space-y-4 lg:col-span-2">
+            <Card delay={0}>
+              <h2 className="mb-3 font-display text-sm font-semibold uppercase tracking-wide text-muted-foreground">Data Pemohon</h2>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Field icon={IdCard} label="Nama">{item.profiles?.nama_lengkap || "—"}</Field>
+                <Field icon={IdCard} label="NIK">{item.profiles?.nik || "—"}</Field>
+                <Field icon={Phone} label="Telepon">{item.profiles?.no_hp || "—"}</Field>
+                <Field icon={Mail} label="Email">{pemohonEmail || "—"}</Field>
               </div>
-            </div>
-          )}
+            </Card>
 
-          <div className="rounded-xl border border-border bg-card p-5 shadow-soft">
-            <h2 className="mb-3 font-display text-sm font-semibold uppercase tracking-wide text-muted-foreground">Berkas Pendukung</h2>
-            {berkas.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Tidak ada berkas terlampir.</p>
-            ) : (
-              <ul className="divide-y divide-border">
-                {berkas.map((b) => (
-                  <li key={b.name} className="flex items-center gap-3 py-2">
-                    <span className="grid h-9 w-9 place-items-center rounded-md bg-primary-soft text-primary">
-                      <Paperclip className="h-4 w-4" />
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <div className="truncate text-sm font-medium">{b.name.split("_").slice(1).join("_") || b.name}</div>
-                      <div className="text-xs text-muted-foreground">{(b.size / 1024).toFixed(0)} KB</div>
+            {item.deskripsi && (
+              <Card delay={50}>
+                <h2 className="mb-2 font-display text-sm font-semibold uppercase tracking-wide text-muted-foreground">Deskripsi</h2>
+                <p className="whitespace-pre-wrap text-sm text-foreground">{item.deskripsi}</p>
+                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                  <span>Diajukan: <strong className="text-foreground">{fmtDateTime(item.tanggal_masuk)}</strong></span>
+                  {item.tenggat && <span>Tenggat: <strong className="text-foreground">{fmtDateTime(item.tenggat)}</strong></span>}
+                </div>
+              </Card>
+            )}
+
+            <Card delay={100}>
+              <h2 className="mb-3 font-display text-sm font-semibold uppercase tracking-wide text-muted-foreground">Berkas Pendukung</h2>
+              {berkas.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Tidak ada berkas terlampir.</p>
+              ) : (
+                <ul className="divide-y divide-border">
+                  {berkas.map((b, idx) => (
+                    <li
+                      key={b.name}
+                      className="group -mx-2 flex animate-fade-in items-center gap-3 rounded-md px-2 py-2 transition-colors hover:bg-muted/40"
+                      style={{ animationDelay: `${idx * 30}ms`, animationFillMode: "backwards" }}
+                    >
+                      <span className="grid h-9 w-9 place-items-center rounded-md bg-primary-soft text-primary transition-transform group-hover:scale-110">
+                        <Paperclip className="h-4 w-4" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-medium">{b.name.split("_").slice(1).join("_") || b.name}</div>
+                        <div className="text-xs text-muted-foreground">{(b.size / 1024).toFixed(0)} KB</div>
+                      </div>
+                      <button
+                        onClick={() => downloadBerkas(b.name)}
+                        className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-primary transition-all hover:bg-primary-soft active:scale-95"
+                      >
+                        <Download className="h-3.5 w-3.5" /> Unduh
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Card>
+
+            <Card delay={150}>
+              <h2 className="mb-3 font-display text-sm font-semibold uppercase tracking-wide text-muted-foreground">Riwayat & Catatan</h2>
+              <ol className="space-y-3">
+                {riwayat.map((r, idx) => (
+                  <li
+                    key={r.id}
+                    className="relative animate-fade-in pl-6"
+                    style={{ animationDelay: `${idx * 40}ms`, animationFillMode: "backwards" }}
+                  >
+                    <span className="absolute left-0 top-1.5 h-2 w-2 rounded-full bg-primary ring-4 ring-primary-soft" />
+                    <div className="text-sm font-medium text-foreground">{r.aksi}</div>
+                    <div className="text-xs text-muted-foreground">
+                      <Clock className="mr-1 inline h-3 w-3" />
+                      {fmtDateTime(r.created_at)}
                     </div>
-                    <button onClick={() => downloadBerkas(b.name)} className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
-                      <Download className="h-3.5 w-3.5" /> Unduh
-                    </button>
+                    {r.catatan && <div className="mt-1 text-sm text-surface-foreground">{r.catatan}</div>}
                   </li>
                 ))}
-              </ul>
-            )}
+              </ol>
+              <div className="mt-4 border-t border-border pt-4">
+                <label className="text-xs font-medium text-muted-foreground">Tambah catatan internal</label>
+                <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                  <input
+                    value={catatanBaru}
+                    onChange={(e) => setCatatanBaru(e.target.value)}
+                    placeholder="Catatan untuk arsip…"
+                    maxLength={500}
+                    className="h-10 flex-1 rounded-md border border-border bg-background px-3 text-sm transition-shadow focus:outline-none focus:ring-2 focus:ring-ring"
+                  />
+                  <button
+                    type="button"
+                    onClick={tambahCatatan}
+                    disabled={!catatanBaru.trim() || busy}
+                    className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:opacity-95 active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100"
+                  >
+                    <Send className="h-4 w-4" /> Tambah
+                  </button>
+                </div>
+              </div>
+            </Card>
           </div>
 
-          <div className="rounded-xl border border-border bg-card p-5 shadow-soft">
-            <h2 className="mb-3 font-display text-sm font-semibold uppercase tracking-wide text-muted-foreground">Riwayat & Catatan</h2>
-            <ol className="space-y-3">
-              {riwayat.map((r) => (
-                <li key={r.id} className="relative pl-6">
-                  <span className="absolute left-0 top-1.5 h-2 w-2 rounded-full bg-primary" />
-                  <div className="text-sm font-medium text-foreground">{r.aksi}</div>
-                  <div className="text-xs text-muted-foreground">
-                    <Clock className="mr-1 inline h-3 w-3" />
-                    {fmtDateTime(r.created_at)}
-                  </div>
-                  {r.catatan && <div className="mt-1 text-sm text-surface-foreground">{r.catatan}</div>}
-                </li>
-              ))}
-            </ol>
-            <div className="mt-4 border-t border-border pt-4">
-              <label className="text-xs font-medium text-muted-foreground">Tambah catatan internal</label>
-              <div className="mt-2 flex gap-2">
-                <input
-                  value={catatanBaru}
-                  onChange={(e) => setCatatanBaru(e.target.value)}
-                  placeholder="Catatan untuk arsip…"
+          <aside className="space-y-4">
+            <div className="lg:sticky lg:top-20">
+              <Card delay={75}>
+                <h2 className="mb-3 font-display text-sm font-semibold uppercase tracking-wide text-muted-foreground">Ubah Status</h2>
+                <div className="grid grid-cols-2 gap-2">
+                  {STATUS_OPTIONS.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => setStatusBaru(s)}
+                      className={`rounded-md border px-3 py-2 text-xs font-semibold capitalize transition-all active:scale-95 ${
+                        statusBaru === s
+                          ? STATUS_TONE[s] + " scale-[1.02] ring-2 ring-ring"
+                          : "border-border bg-background text-surface-foreground hover:border-primary/40 hover:bg-muted"
+                      }`}
+                    >
+                      {STATUS_LABEL[s]}
+                    </button>
+                  ))}
+                </div>
+                <textarea
+                  value={catatanStatus}
+                  onChange={(e) => setCatatanStatus(e.target.value)}
+                  placeholder="Catatan perubahan status (opsional)…"
                   maxLength={500}
-                  className="h-10 flex-1 rounded-md border border-border bg-background px-3 text-sm"
+                  rows={3}
+                  className="mt-3 w-full rounded-md border border-border bg-background px-3 py-2 text-sm transition-shadow focus:outline-none focus:ring-2 focus:ring-ring"
                 />
                 <button
                   type="button"
-                  onClick={tambahCatatan}
-                  disabled={!catatanBaru.trim() || busy}
-                  className="inline-flex h-10 items-center gap-2 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                  onClick={simpanStatus}
+                  disabled={busy || (statusBaru === item.status && !catatanStatus.trim())}
+                  className="mt-3 flex w-full items-center justify-center gap-2 rounded-md bg-gradient-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:opacity-95 hover:shadow-md active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100"
                 >
-                  <Send className="h-4 w-4" /> Tambah
+                  {busy && <Loader2 className="h-4 w-4 animate-spin" />}
+                  {busy ? "Menyimpan…" : "Simpan Perubahan"}
                 </button>
-              </div>
+              </Card>
             </div>
-          </div>
+          </aside>
         </div>
-
-        <aside className="space-y-4">
-          <div className="rounded-xl border border-border bg-card p-5 shadow-soft">
-            <h2 className="mb-3 font-display text-sm font-semibold uppercase tracking-wide text-muted-foreground">Ubah Status</h2>
-            <div className="grid grid-cols-2 gap-2">
-              {STATUS_OPTIONS.map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => setStatusBaru(s)}
-                  className={`rounded-md border px-3 py-2 text-xs font-semibold capitalize transition ${
-                    statusBaru === s ? STATUS_TONE[s] + " ring-2 ring-ring" : "border-border bg-background text-surface-foreground hover:bg-muted"
-                  }`}
-                >
-                  {STATUS_LABEL[s]}
-                </button>
-              ))}
-            </div>
-            <textarea
-              value={catatanStatus}
-              onChange={(e) => setCatatanStatus(e.target.value)}
-              placeholder="Catatan perubahan status (opsional)…"
-              maxLength={500}
-              rows={3}
-              className="mt-3 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-            />
-            <button
-              type="button"
-              onClick={simpanStatus}
-              disabled={busy || (statusBaru === item.status && !catatanStatus.trim())}
-              className="mt-3 w-full rounded-md bg-gradient-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft hover:opacity-95 disabled:opacity-50"
-            >
-              {busy ? "Menyimpan…" : "Simpan Perubahan"}
-            </button>
-          </div>
-        </aside>
       </div>
     </AdminShell>
+  );
+}
+
+function Card({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+  return (
+    <div
+      className="animate-fade-in rounded-xl border border-border bg-card p-5 shadow-soft transition-shadow hover:shadow-md"
+      style={{ animationDelay: `${delay}ms`, animationFillMode: "backwards" }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function DetailSkeleton() {
+  return (
+    <div className="animate-fade-in space-y-4">
+      <div className="space-y-2">
+        <div className="h-3 w-32 animate-pulse rounded bg-muted" />
+        <div className="h-7 w-2/3 animate-pulse rounded bg-muted" />
+        <div className="flex gap-2">
+          <div className="h-5 w-20 animate-pulse rounded-full bg-muted" />
+          <div className="h-5 w-24 animate-pulse rounded-full bg-muted" />
+        </div>
+      </div>
+      <div className="grid gap-4 lg:grid-cols-3">
+        <div className="space-y-4 lg:col-span-2">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-40 animate-pulse rounded-xl border border-border bg-card" />
+          ))}
+        </div>
+        <div className="h-64 animate-pulse rounded-xl border border-border bg-card" />
+      </div>
+    </div>
   );
 }
 
