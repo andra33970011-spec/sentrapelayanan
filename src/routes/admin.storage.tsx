@@ -56,7 +56,10 @@ function StoragePage() {
       await deleteStorageObject({ data: { path: prefix ? `${prefix}/${name}` : name } });
       toast.success("Dihapus");
       load(prefix);
-    } catch (e) { toast.error((e as Error).message); }
+    } catch (e) {
+      const msg = (e as Error)?.message || "Gagal menghapus berkas";
+      toast.error(`Gagal menghapus: ${msg}`);
+    }
   }
 
   if (!isSuperAdmin) return <AdminShell breadcrumb={[{ label: "Storage" }]}><div className="rounded-xl border border-border bg-card p-12 text-center text-muted-foreground">Hanya Super Admin.</div></AdminShell>;
