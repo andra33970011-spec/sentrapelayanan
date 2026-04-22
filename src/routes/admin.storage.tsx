@@ -24,9 +24,13 @@ function StoragePage() {
   const [prefix, setPrefix] = useState("");
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [lastPrefix, setLastPrefix] = useState("");
 
   async function load(p: string) {
     setLoading(true);
+    setLoadError(null);
+    setLastPrefix(p);
     try {
       const res = await listStorageObjects({ data: { prefix: p } });
       const safeItems = Array.isArray(res?.items)
@@ -37,11 +41,13 @@ function StoragePage() {
     } catch (e) {
       setItems([]);
       const msg = (e as Error)?.message || "Gagal memuat storage";
+      setLoadError(msg);
       toast.error(`Gagal memuat storage: ${msg}`);
       console.error("[admin.storage] load error", e);
     }
     finally { setLoading(false); }
   }
+  function retry() { load(loadError ? lastPrefix : prefix); }
   useEffect(() => { if (isSuperAdmin) load(""); }, [isSuperAdmin]);
 
   function enter(name: string) { load(prefix ? `${prefix}/${name}` : name); }
