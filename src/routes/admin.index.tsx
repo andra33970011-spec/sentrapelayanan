@@ -1,10 +1,10 @@
 // Admin dashboard — DB real.
-// - Super admin: lihat semua OPD; bisa filter by OPD
+// - Super admin: lihat semua OPD; bisa filter by OPD; widget SLA, backlog OPD, status sistem
 // - Admin OPD: otomatis terbatas ke OPD-nya (RLS yang menjamin)
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Inbox, Loader2, CheckCircle2, XCircle, Search, Filter, ArrowUpRight } from "lucide-react";
-import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { Inbox, Loader2, CheckCircle2, XCircle, Search, Filter, ArrowUpRight, Clock, Building2, Database as DbIcon, AlertTriangle, ShieldCheck, Users as UsersIcon, FileClock, Newspaper, Settings, FolderOpen } from "lucide-react";
+import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell } from "recharts";
 import { AdminShell, StatCard } from "@/components/admin/AdminShell";
 import { AdminGuard } from "@/components/admin/AdminGuard";
 import { useAuth } from "@/lib/auth-context";
