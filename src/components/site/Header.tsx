@@ -166,7 +166,7 @@ export function Header() {
       </div>
 
       {open && (
-        <nav className="lg:hidden border-t border-border bg-background">
+        <nav className="lg:hidden border-t border-border bg-background animate-fade-in">
           <div className="container-page flex flex-col py-2">
             {user && (
               <div className="mb-2 rounded-md bg-primary-soft px-3 py-2 text-xs">
