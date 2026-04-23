@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
-import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { PageShell } from "@/components/site/PageShell";
-import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, ChevronRight, ClipboardList, ListChecks, Building2, FileText, Loader2 } from "lucide-react";
+import { layananBySlugQueryOptions, opdByIdQueryOptions } from "@/lib/queries";
 
 export const Route = createFileRoute("/layanan/$slug")({
   head: ({ params }) => ({
@@ -11,43 +11,32 @@ export const Route = createFileRoute("/layanan/$slug")({
       { name: "description", content: "Detail layanan publik: deskripsi, persyaratan, dan alur lengkap." },
     ],
   }),
+  loader: async ({ params, context: { queryClient } }) => {
+    const item = await queryClient.ensureQueryData(layananBySlugQueryOptions(params.slug));
+    if (item?.opd_id) {
+      queryClient.ensureQueryData(opdByIdQueryOptions(item.opd_id));
+    }
+  },
+  pendingComponent: () => (
+    <PageShell>
+      <section className="bg-gradient-hero text-primary-foreground">
+        <div className="container-page py-12 md:py-16">
+          <div className="flex items-center gap-2 text-white/85">
+            <Loader2 className="h-5 w-5 animate-spin" /> Memuat…
+          </div>
+        </div>
+      </section>
+    </PageShell>
+  ),
   component: LayananDetailPage,
 });
 
-type Layanan = {
-  id: string; judul: string; slug: string; deskripsi: string | null;
-  persyaratan: string | null; alur: string | null; opd_id: string | null;
-};
-type Opd = { id: string; nama: string; singkatan: string };
-
 function LayananDetailPage() {
-  const { slug } = useParams({ from: "/layanan/$slug" });
-  const [item, setItem] = useState<Layanan | null>(null);
-  const [opd, setOpd] = useState<Opd | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
+  const { slug } = Route.useParams();
+  const { data: item } = useSuspenseQuery(layananBySlugQueryOptions(slug));
+  const { data: opd } = useSuspenseQuery(opdByIdQueryOptions(item?.opd_id ?? ""));
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      setLoading(true);
-      const { data } = await supabase
-        .from("layanan_publik")
-        .select("id,judul,slug,deskripsi,persyaratan,alur,opd_id")
-        .eq("slug", slug)
-        .eq("aktif", true)
-        .maybeSingle();
-      if (cancelled) return;
-      if (!data) { setNotFound(true); setLoading(false); return; }
-      setItem(data as Layanan);
-      if (data.opd_id) {
-        const { data: o } = await supabase.from("opd").select("id,nama,singkatan").eq("id", data.opd_id).maybeSingle();
-        if (!cancelled && o) setOpd(o as Opd);
-      }
-      setLoading(false);
-    })();
-    return () => { cancelled = true; };
-  }, [slug]);
+  const notFoundFlag = !item;
 
   return (
     <PageShell>
@@ -56,9 +45,7 @@ function LayananDetailPage() {
           <Link to="/layanan" className="inline-flex items-center gap-1 text-sm text-white/85 hover:text-white transition-colors">
             <ArrowLeft className="h-4 w-4" /> Kembali ke daftar layanan
           </Link>
-          {loading ? (
-            <div className="mt-6 flex items-center gap-2 text-white/85"><Loader2 className="h-5 w-5 animate-spin" /> Memuat…</div>
-          ) : notFound || !item ? (
+          {notFoundFlag ? (
             <h1 className="mt-6 text-3xl font-bold md:text-4xl">Layanan tidak ditemukan</h1>
           ) : (
             <>
@@ -76,7 +63,7 @@ function LayananDetailPage() {
         </div>
       </section>
 
-      {!loading && notFound && (
+      {notFoundFlag && (
         <section className="container-page py-14">
           <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center">
             <p className="text-muted-foreground">Layanan dengan tautan ini tidak tersedia atau telah dinonaktifkan.</p>
@@ -87,7 +74,7 @@ function LayananDetailPage() {
         </section>
       )}
 
-      {!loading && item && (
+      {item && (
         <section className="container-page grid gap-6 py-12 lg:grid-cols-[1fr_320px]">
           <div className="space-y-6">
             {item.deskripsi && (

@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate, notFound } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { PageShell, PageHero } from "@/components/site/PageShell";
-import { Building2, ChevronRight, ChevronLeft, LayoutGrid, Search, X, ArrowLeft } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { Building2, ChevronRight, ChevronLeft, LayoutGrid, Search, X, ArrowLeft, Loader2 } from "lucide-react";
+import { opdBySingkatanQueryOptions, layananByOpdIdQueryOptions } from "@/lib/queries";
 
 type OpdSearch = { q?: string; page: number };
 
@@ -19,6 +20,22 @@ export const Route = createFileRoute("/instansi/$singkatan")({
       { property: "og:description", content: `Layanan publik yang dikelola ${params.singkatan}.` },
     ],
   }),
+  loader: async ({ params, context: { queryClient } }) => {
+    const opd = await queryClient.ensureQueryData(opdBySingkatanQueryOptions(params.singkatan));
+    if (opd?.id) {
+      queryClient.ensureQueryData(layananByOpdIdQueryOptions(opd.id));
+    }
+  },
+  pendingComponent: () => (
+    <PageShell>
+      <PageHero eyebrow="OPD" title="Memuat profil OPD…" />
+      <section className="container-page py-12">
+        <div className="rounded-xl border border-border bg-card p-12 text-center text-muted-foreground">
+          <Loader2 className="mx-auto h-6 w-6 animate-spin" />
+        </div>
+      </section>
+    </PageShell>
+  ),
   component: OpdDetailPage,
   notFoundComponent: () => {
     const { singkatan } = Route.useParams();
@@ -37,9 +54,6 @@ export const Route = createFileRoute("/instansi/$singkatan")({
   },
 });
 
-type Opd = { id: string; singkatan: string; nama: string; kategori: string[] };
-type Layanan = { id: string; judul: string; slug: string; deskripsi: string | null };
-
 const PAGE_SIZE = 6;
 
 function OpdDetailPage() {
@@ -47,30 +61,13 @@ function OpdDetailPage() {
   const search = Route.useSearch();
   const navigate = useNavigate({ from: "/instansi/$singkatan" });
 
-  const [opd, setOpd] = useState<Opd | null>(null);
-  const [layanan, setLayanan] = useState<Layanan[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [notFoundFlag, setNotFoundFlag] = useState(false);
+  const { data: opd } = useSuspenseQuery(opdBySingkatanQueryOptions(singkatan));
+  if (!opd) throw notFound();
+
+  const { data: layanan } = useSuspenseQuery(layananByOpdIdQueryOptions(opd.id));
+
   const [qInput, setQInput] = useState(search.q ?? "");
-
   useEffect(() => { setQInput(search.q ?? ""); }, [search.q]);
-
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
-      const { data: o } = await supabase.from("opd").select("id,singkatan,nama,kategori").eq("singkatan", singkatan).maybeSingle();
-      if (!o) { setNotFoundFlag(true); setLoading(false); return; }
-      setOpd(o as Opd);
-      const { data: l } = await supabase
-        .from("layanan_publik")
-        .select("id,judul,slug,deskripsi")
-        .eq("aktif", true)
-        .eq("opd_id", (o as Opd).id)
-        .order("urutan");
-      setLayanan((l ?? []) as Layanan[]);
-      setLoading(false);
-    })();
-  }, [singkatan]);
 
   const filtered = useMemo(() => {
     const q = (search.q ?? "").trim().toLowerCase();
@@ -91,14 +88,12 @@ function OpdDetailPage() {
     navigate({ search: (prev: OpdSearch) => ({ ...prev, page: p }), replace: true });
   };
 
-  if (notFoundFlag) throw notFound();
-
   return (
     <PageShell>
       <PageHero
-        eyebrow={opd ? "OPD" : "Memuat…"}
-        title={opd ? opd.nama : "Memuat profil OPD…"}
-        description={opd ? `Singkatan resmi: ${opd.singkatan}` : undefined}
+        eyebrow="OPD"
+        title={opd.nama}
+        description={`Singkatan resmi: ${opd.singkatan}`}
       />
 
       <section className="container-page py-10">
@@ -106,18 +101,16 @@ function OpdDetailPage() {
           <Link to="/layanan" className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-4 w-4" /> Kembali ke daftar OPD
           </Link>
-          {opd && (
-            <Link
-              to="/layanan"
-              search={{ opd: opd.singkatan, page: 1 } as never}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-primary-soft px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary-soft/70"
-            >
-              Lihat di katalog layanan <ChevronRight className="h-3.5 w-3.5" />
-            </Link>
-          )}
+          <Link
+            to="/layanan"
+            search={{ opd: opd.singkatan, page: 1 } as never}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary-soft px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary-soft/70"
+          >
+            Lihat di katalog layanan <ChevronRight className="h-3.5 w-3.5" />
+          </Link>
         </div>
 
-        {opd && opd.kategori.length > 0 && (
+        {opd.kategori.length > 0 && (
           <div className="mt-4 flex flex-wrap gap-1.5">
             {opd.kategori.map((k) => (
               <span key={k} className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">{k}</span>
@@ -133,7 +126,7 @@ function OpdDetailPage() {
               <input
                 value={qInput}
                 onChange={(e) => setQInput(e.target.value)}
-                placeholder={`Cari layanan di ${opd?.singkatan ?? "OPD ini"}…`}
+                placeholder={`Cari layanan di ${opd.singkatan}…`}
                 className="flex-1 bg-transparent py-2.5 text-sm outline-none placeholder:text-muted-foreground"
               />
               {qInput && (
@@ -148,21 +141,17 @@ function OpdDetailPage() {
           </form>
         </div>
 
-        {!loading && (
-          <div className="mt-6 flex items-center justify-between text-sm text-muted-foreground">
-            <span>
-              Menampilkan <span className="font-semibold text-foreground">{pageItems.length}</span> dari {filtered.length} layanan
-              {search.q && " (tersaring)"}
-            </span>
-            <span>Halaman {currentPage} / {totalPages}</span>
-          </div>
-        )}
+        <div className="mt-6 flex items-center justify-between text-sm text-muted-foreground">
+          <span>
+            Menampilkan <span className="font-semibold text-foreground">{pageItems.length}</span> dari {filtered.length} layanan
+            {search.q && " (tersaring)"}
+          </span>
+          <span>Halaman {currentPage} / {totalPages}</span>
+        </div>
       </section>
 
       <section className="container-page pb-14">
-        {loading && <div className="rounded-xl border border-border bg-card p-12 text-center text-muted-foreground">Memuat layanan…</div>}
-
-        {!loading && filtered.length === 0 && (
+        {filtered.length === 0 && (
           <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center">
             <LayoutGrid className="mx-auto h-10 w-10 text-muted-foreground" />
             <h2 className="mt-3 font-display text-xl font-bold">
