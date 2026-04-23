@@ -9,7 +9,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { generateKodePermohonan } from "@/lib/permohonan";
 import { logAudit } from "@/lib/audit";
 
+type BaruSearch = { layanan?: string };
+
 export const Route = createFileRoute("/permohonan/baru")({
+  validateSearch: (search: Record<string, unknown>): BaruSearch => ({
+    layanan: typeof search.layanan === "string" && search.layanan.length > 0 ? search.layanan : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Ajukan Permohonan — Portal Buton Selatan" },
@@ -36,6 +41,7 @@ const MAX_FILE_BYTES = 5 * 1024 * 1024; // 5 MB
 function BaruPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const { layanan: layananSlug } = Route.useSearch();
   const [opdList, setOpdList] = useState<Opd[]>([]);
   const [form, setForm] = useState({
     opd_id: "",
@@ -46,16 +52,47 @@ function BaruPage() {
   });
   const [files, setFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
+  const [prefilling, setPrefilling] = useState<boolean>(!!layananSlug);
 
   useEffect(() => {
-    if (!loading && !user) navigate({ to: "/auth" });
-  }, [user, loading, navigate]);
+    if (!loading && !user) {
+      const redirectPath = layananSlug
+        ? `/permohonan/baru?layanan=${encodeURIComponent(layananSlug)}`
+        : "/permohonan/baru";
+      navigate({ to: "/auth", search: { redirect: redirectPath } as never });
+    }
+  }, [user, loading, navigate, layananSlug]);
 
   useEffect(() => {
     supabase.from("opd").select("id,nama,singkatan,kategori").order("nama").then(({ data }) => {
       setOpdList((data ?? []) as Opd[]);
     });
   }, []);
+
+  // Prefill form berdasar slug layanan dari query string.
+  useEffect(() => {
+    if (!layananSlug) return;
+    let cancelled = false;
+    (async () => {
+      setPrefilling(true);
+      const { data } = await supabase
+        .from("layanan_publik")
+        .select("judul,opd_id")
+        .eq("slug", layananSlug)
+        .eq("aktif", true)
+        .maybeSingle();
+      if (cancelled) return;
+      if (data) {
+        setForm((prev) => ({
+          ...prev,
+          opd_id: data.opd_id ?? prev.opd_id,
+          judul: prev.judul || `Permohonan ${data.judul}`,
+        }));
+      }
+      setPrefilling(false);
+    })();
+    return () => { cancelled = true; };
+  }, [layananSlug]);
 
   const opd = opdList.find((o) => o.id === form.opd_id);
 
