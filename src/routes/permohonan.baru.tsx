@@ -125,6 +125,13 @@ function BaruPage() {
     setBusy(true);
     try {
       const parsed = formSchema.parse(form);
+      // Jika "Lainnya", wajib isi detail dan simpan ke kategori sebagai "Lainnya: <detail>".
+      let kategoriFinal = parsed.kategori;
+      if (parsed.kategori === "Lainnya") {
+        const detail = kategoriLain.trim();
+        if (detail.length < 3) throw new Error("Sebutkan jenis layanan untuk kategori Lainnya (min. 3 karakter).");
+        kategoriFinal = `Lainnya: ${detail}`;
+      }
       const kode = generateKodePermohonan();
       const tenggat = new Date(Date.now() + 14 * 86400_000).toISOString();
 
@@ -135,7 +142,7 @@ function BaruPage() {
           pemohon_id: user.id,
           opd_id: parsed.opd_id,
           judul: parsed.judul,
-          kategori: parsed.kategori,
+          kategori: kategoriFinal,
           deskripsi: parsed.deskripsi || null,
           prioritas: parsed.prioritas,
           tenggat,
