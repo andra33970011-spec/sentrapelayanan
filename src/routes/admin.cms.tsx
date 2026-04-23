@@ -1,12 +1,14 @@
 // Admin CMS: kelola Berita & Layanan Publik untuk halaman /berita & /layanan.
 import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, X, FileText, LayoutGrid } from "lucide-react";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { AdminGuard } from "@/components/admin/AdminGuard";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
+import { invalidateBerita, invalidateLayanan } from "@/lib/queries";
 import {
   upsertBerita, deleteBerita, upsertLayanan, deleteLayanan,
 } from "@/lib/admin-actions.functions";
@@ -50,6 +52,7 @@ function CmsPage() {
 }
 
 function BeritaTab() {
+  const qc = useQueryClient();
   const [rows, setRows] = useState<Berita[]>([]);
   const [editing, setEditing] = useState<Partial<Berita> | null>(null);
   const [loading, setLoading] = useState(true);
@@ -70,13 +73,17 @@ function BeritaTab() {
         ringkasan: editing.ringkasan ?? null, isi: editing.isi ?? "",
         gambar_url: editing.gambar_url ?? null, status: (editing.status ?? "draft") as "draft" | "terbit",
       }});
+      await invalidateBerita(qc);
       toast.success("Tersimpan"); setEditing(null); load();
     } catch (e) { toast.error((e as Error).message); }
   }
   async function hapus(id: string) {
     if (!confirm("Hapus berita?")) return;
-    try { await deleteBerita({ data: { id } }); toast.success("Dihapus"); load(); }
-    catch (e) { toast.error((e as Error).message); }
+    try {
+      await deleteBerita({ data: { id } });
+      await invalidateBerita(qc);
+      toast.success("Dihapus"); load();
+    } catch (e) { toast.error((e as Error).message); }
   }
 
   return (
@@ -137,6 +144,7 @@ function BeritaTab() {
 }
 
 function LayananTab() {
+  const qc = useQueryClient();
   const [rows, setRows] = useState<Layanan[]>([]);
   const [opds, setOpds] = useState<Opd[]>([]);
   const [editing, setEditing] = useState<Partial<Layanan> | null>(null);
@@ -164,13 +172,17 @@ function LayananTab() {
         alur: editing.alur ?? null, aktif: editing.aktif ?? true,
         urutan: editing.urutan ?? 0,
       }});
+      await invalidateLayanan(qc);
       toast.success("Tersimpan"); setEditing(null); load();
     } catch (e) { toast.error((e as Error).message); }
   }
   async function hapus(id: string) {
     if (!confirm("Hapus layanan?")) return;
-    try { await deleteLayanan({ data: { id } }); toast.success("Dihapus"); load(); }
-    catch (e) { toast.error((e as Error).message); }
+    try {
+      await deleteLayanan({ data: { id } });
+      await invalidateLayanan(qc);
+      toast.success("Dihapus"); load();
+    } catch (e) { toast.error((e as Error).message); }
   }
 
   return (

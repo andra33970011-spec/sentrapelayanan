@@ -1,6 +1,7 @@
 // Admin: CRUD OPD (Organisasi Perangkat Daerah).
 import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Loader2, X } from "lucide-react";
 import { AdminShell } from "@/components/admin/AdminShell";
@@ -8,6 +9,7 @@ import { AdminGuard } from "@/components/admin/AdminGuard";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { upsertOpd, deleteOpd } from "@/lib/admin-actions.functions";
+import { invalidateOpd } from "@/lib/queries";
 
 export const Route = createFileRoute("/admin/opd")({
   head: () => ({ meta: [{ title: "Manajemen OPD — Admin" }, { name: "robots", content: "noindex" }] }),
@@ -22,6 +24,7 @@ type Opd = { id: string; nama: string; singkatan: string; kategori: string[] };
 
 function OpdPage() {
   const { isSuperAdmin } = useAuth();
+  const qc = useQueryClient();
   const [rows, setRows] = useState<Opd[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Partial<Opd> | null>(null);
@@ -41,6 +44,7 @@ function OpdPage() {
         id: editing.id, nama: editing.nama, singkatan: editing.singkatan,
         kategori: editing.kategori ?? [],
       }});
+      await invalidateOpd(qc);
       toast.success("OPD tersimpan");
       setEditing(null);
       load();
@@ -49,8 +53,11 @@ function OpdPage() {
 
   async function hapus(id: string) {
     if (!confirm("Hapus OPD ini?")) return;
-    try { await deleteOpd({ data: { id } }); toast.success("Dihapus"); load(); }
-    catch (e) { toast.error((e as Error).message); }
+    try {
+      await deleteOpd({ data: { id } });
+      await invalidateOpd(qc);
+      toast.success("Dihapus"); load();
+    } catch (e) { toast.error((e as Error).message); }
   }
 
   if (!isSuperAdmin) {
