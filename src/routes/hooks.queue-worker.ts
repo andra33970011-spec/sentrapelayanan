@@ -81,7 +81,7 @@ export const Route = createFileRoute("/hooks/queue-worker")({
       POST: async ({ request }) => {
         const auth = request.headers.get("authorization") ?? "";
         const token = auth.replace(/^Bearer\s+/i, "");
-        if (!ANON || token !== ANON) {
+        if (!WORKER_SECRET || token !== WORKER_SECRET) {
           return new Response("Unauthorized", { status: 401 });
         }
 
