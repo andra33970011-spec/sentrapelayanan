@@ -34,13 +34,20 @@ const signUpSchema = signInSchema.extend({
 function AuthPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const { redirect } = Route.useSearch();
   const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [busy, setBusy] = useState(false);
   const [form, setForm] = useState({ email: "", password: "", nama_lengkap: "", no_hp: "" });
 
+  const goAfterAuth = () => {
+    if (redirect) window.location.assign(redirect);
+    else navigate({ to: "/" });
+  };
+
   useEffect(() => {
-    if (!loading && user) navigate({ to: "/" });
-  }, [user, loading, navigate]);
+    if (!loading && user) goAfterAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, loading]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -51,7 +58,7 @@ function AuthPage() {
         const { error } = await supabase.auth.signInWithPassword(parsed);
         if (error) throw error;
         toast.success("Berhasil masuk");
-        navigate({ to: "/" });
+        goAfterAuth();
       } else if (mode === "signup") {
         const parsed = signUpSchema.parse(form);
         const { error } = await supabase.auth.signUp({
@@ -64,7 +71,7 @@ function AuthPage() {
         });
         if (error) throw error;
         toast.success("Akun dibuat. Anda sudah masuk.");
-        navigate({ to: "/" });
+        goAfterAuth();
       } else {
         const { error } = await supabase.auth.resetPasswordForEmail(form.email, {
           redirectTo: `${window.location.origin}/reset-password`,
