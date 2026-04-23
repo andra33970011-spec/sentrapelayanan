@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { PageShell, PageHero } from "@/components/site/PageShell";
-import { Building2, ChevronRight } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { Building2, ChevronRight, Loader2 } from "lucide-react";
+import { opdListQueryOptions, layananCountByOpdQueryOptions } from "@/lib/queries";
 
 export const Route = createFileRoute("/layanan")({
   head: () => ({
@@ -13,30 +13,27 @@ export const Route = createFileRoute("/layanan")({
       { property: "og:description", content: "Jelajahi layanan publik berdasarkan OPD." },
     ],
   }),
+  loader: ({ context: { queryClient } }) => {
+    queryClient.ensureQueryData(opdListQueryOptions());
+    queryClient.ensureQueryData(layananCountByOpdQueryOptions());
+  },
+  pendingComponent: () => (
+    <PageShell>
+      <PageHero eyebrow="Organisasi Perangkat Daerah" title="Jelajahi layanan berdasarkan OPD." />
+      <section className="container-page py-12">
+        <div className="rounded-xl border border-border bg-card p-12 text-center text-muted-foreground">
+          <Loader2 className="mx-auto h-6 w-6 animate-spin" />
+          <p className="mt-3">Memuat OPD…</p>
+        </div>
+      </section>
+    </PageShell>
+  ),
   component: LayananOpdPage,
 });
 
-type Opd = { id: string; singkatan: string; nama: string; kategori: string[] };
-
 function LayananOpdPage() {
-  const [opds, setOpds] = useState<Opd[]>([]);
-  const [counts, setCounts] = useState<Record<string, number>>({});
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    Promise.all([
-      supabase.from("opd").select("id,singkatan,nama,kategori").order("singkatan"),
-      supabase.from("layanan_publik").select("opd_id").eq("aktif", true),
-    ]).then(([{ data: o }, { data: l }]) => {
-      setOpds((o ?? []) as Opd[]);
-      const c: Record<string, number> = {};
-      ((l ?? []) as { opd_id: string | null }[]).forEach((x) => {
-        if (x.opd_id) c[x.opd_id] = (c[x.opd_id] ?? 0) + 1;
-      });
-      setCounts(c);
-      setLoading(false);
-    });
-  }, []);
+  const { data: opds } = useSuspenseQuery(opdListQueryOptions());
+  const { data: counts } = useSuspenseQuery(layananCountByOpdQueryOptions());
 
   return (
     <PageShell>
@@ -47,9 +44,7 @@ function LayananOpdPage() {
       />
 
       <section className="container-page py-12">
-        {loading && <div className="rounded-xl border border-border bg-card p-12 text-center text-muted-foreground">Memuat OPD…</div>}
-
-        {!loading && opds.length === 0 && (
+        {opds.length === 0 && (
           <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center">
             <Building2 className="mx-auto h-10 w-10 text-muted-foreground" />
             <h2 className="mt-3 font-display text-xl font-bold">Daftar OPD belum tersedia</h2>

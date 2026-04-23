@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { PageShell, PageHero } from "@/components/site/PageShell";
-import { Calendar, ArrowRight } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { Calendar, ArrowRight, Loader2 } from "lucide-react";
+import { beritaListQueryOptions } from "@/lib/queries";
 
 export const Route = createFileRoute("/berita")({
   head: () => ({
@@ -13,27 +13,25 @@ export const Route = createFileRoute("/berita")({
       { property: "og:description", content: "Informasi resmi terkini dari Pemerintah Kabupaten Buton Selatan." },
     ],
   }),
+  loader: ({ context: { queryClient } }) => {
+    queryClient.ensureQueryData(beritaListQueryOptions());
+  },
+  pendingComponent: () => (
+    <PageShell>
+      <PageHero eyebrow="Pusat Informasi" title="Berita & pengumuman resmi." />
+      <section className="container-page py-14">
+        <div className="rounded-xl border border-border bg-card p-12 text-center text-muted-foreground">
+          <Loader2 className="mx-auto h-6 w-6 animate-spin" />
+          <p className="mt-3">Memuat berita…</p>
+        </div>
+      </section>
+    </PageShell>
+  ),
   component: BeritaPage,
 });
 
-type Berita = { id: string; judul: string; ringkasan: string | null; isi: string; gambar_url: string | null; published_at: string | null };
-
 function BeritaPage() {
-  const [items, setItems] = useState<Berita[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    supabase
-      .from("berita")
-      .select("id,judul,ringkasan,isi,gambar_url,published_at")
-      .eq("status", "terbit")
-      .order("published_at", { ascending: false })
-      .limit(30)
-      .then(({ data }) => {
-        setItems((data ?? []) as Berita[]);
-        setLoading(false);
-      });
-  }, []);
+  const { data: items } = useSuspenseQuery(beritaListQueryOptions());
 
   const featured = items[0];
   const rest = items.slice(1);
@@ -47,9 +45,7 @@ function BeritaPage() {
       />
 
       <section className="container-page py-14">
-        {loading && <div className="rounded-xl border border-border bg-card p-12 text-center text-muted-foreground">Memuat berita…</div>}
-
-        {!loading && items.length === 0 && (
+        {items.length === 0 && (
           <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center">
             <h2 className="font-display text-xl font-bold">Belum ada berita yang terbit</h2>
             <p className="mt-2 text-sm text-muted-foreground">Berita akan muncul di sini setelah Super Admin mempublikasikannya melalui CMS.</p>
