@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { PageShell, PageHero } from "@/components/site/PageShell";
-import { Building2, ChevronRight, Loader2 } from "lucide-react";
+import { LayananOpdPageSkeleton } from "@/components/site/Skeletons";
+import { Building2, ChevronRight } from "lucide-react";
 import { opdListQueryOptions, layananCountByOpdQueryOptions } from "@/lib/queries";
 
 export const Route = createFileRoute("/layanan")({
@@ -17,17 +18,7 @@ export const Route = createFileRoute("/layanan")({
     queryClient.ensureQueryData(opdListQueryOptions());
     queryClient.ensureQueryData(layananCountByOpdQueryOptions());
   },
-  pendingComponent: () => (
-    <PageShell>
-      <PageHero eyebrow="Organisasi Perangkat Daerah" title="Jelajahi layanan berdasarkan OPD." />
-      <section className="container-page py-12">
-        <div className="rounded-xl border border-border bg-card p-12 text-center text-muted-foreground">
-          <Loader2 className="mx-auto h-6 w-6 animate-spin" />
-          <p className="mt-3">Memuat OPD…</p>
-        </div>
-      </section>
-    </PageShell>
-  ),
+  pendingComponent: LayananOpdPageSkeleton,
   component: LayananOpdPage,
 });
 

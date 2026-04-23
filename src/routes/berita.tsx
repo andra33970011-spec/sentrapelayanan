@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { PageShell, PageHero } from "@/components/site/PageShell";
-import { Calendar, ArrowRight, Loader2 } from "lucide-react";
+import { BeritaPageSkeleton } from "@/components/site/Skeletons";
+import { Calendar, ArrowRight } from "lucide-react";
 import { beritaListQueryOptions } from "@/lib/queries";
 
 export const Route = createFileRoute("/berita")({
@@ -16,17 +17,7 @@ export const Route = createFileRoute("/berita")({
   loader: ({ context: { queryClient } }) => {
     queryClient.ensureQueryData(beritaListQueryOptions());
   },
-  pendingComponent: () => (
-    <PageShell>
-      <PageHero eyebrow="Pusat Informasi" title="Berita & pengumuman resmi." />
-      <section className="container-page py-14">
-        <div className="rounded-xl border border-border bg-card p-12 text-center text-muted-foreground">
-          <Loader2 className="mx-auto h-6 w-6 animate-spin" />
-          <p className="mt-3">Memuat berita…</p>
-        </div>
-      </section>
-    </PageShell>
-  ),
+  pendingComponent: BeritaPageSkeleton,
   component: BeritaPage,
 });
 
