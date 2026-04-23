@@ -5,7 +5,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
-const ANON = process.env.SUPABASE_PUBLISHABLE_KEY;
+const WORKER_SECRET = process.env.QUEUE_WORKER_SECRET;
 
 type JobRow = {
   id: string;
