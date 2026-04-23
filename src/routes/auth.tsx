@@ -6,7 +6,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { PageShell } from "@/components/site/PageShell";
 
+type AuthSearch = { redirect?: string };
+
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search: Record<string, unknown>): AuthSearch => ({
+    redirect: typeof search.redirect === "string" && search.redirect.startsWith("/") ? search.redirect : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Masuk / Daftar — Portal Buton Selatan" },
