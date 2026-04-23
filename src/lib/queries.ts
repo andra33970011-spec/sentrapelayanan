@@ -45,7 +45,7 @@ export type LayananRingkas = {
   judul: string;
   slug: string;
   deskripsi: string | null;
-  persyaratan: string | null;
+  persyaratan?: string | null;
 };
 
 export const layananHomeQueryOptions = () =>
