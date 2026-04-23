@@ -47,6 +47,23 @@ export type LayananRingkas = {
   deskripsi: string | null;
 };
 
+export const layananHomeQueryOptions = () =>
+  queryOptions({
+    queryKey: ["layanan", "home-top"],
+    queryFn: async (): Promise<LayananRingkas[]> => {
+      const { data, error } = await supabase
+        .from("layanan_publik")
+        .select("id,judul,slug,deskripsi")
+        .eq("aktif", true)
+        .order("urutan")
+        .limit(6);
+      if (error) throw error;
+      return (data ?? []) as LayananRingkas[];
+    },
+    staleTime: 5 * 60_000,
+    gcTime: 10 * 60_000,
+  });
+
 export type LayananDetail = {
   id: string;
   judul: string;
