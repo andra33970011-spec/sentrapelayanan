@@ -182,6 +182,11 @@ function BaruPage() {
         description="Lengkapi form di bawah dan unggah berkas pendukung. Permohonan akan diteruskan ke OPD terkait."
       />
       <section className="container-page py-12">
+        {prefilling && (
+          <div className="mx-auto mb-4 max-w-2xl rounded-md border border-primary/20 bg-primary-soft px-4 py-2 text-xs font-medium text-primary">
+            Mengisi otomatis berdasarkan layanan yang dipilih…
+          </div>
+        )}
         <form onSubmit={onSubmit} className="mx-auto max-w-2xl space-y-5 rounded-xl border border-border bg-card p-6 shadow-soft">
           <Field label="OPD Tujuan" required>
             <select
