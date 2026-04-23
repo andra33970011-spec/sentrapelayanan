@@ -2,8 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { PageShell, PageHero } from "@/components/site/PageShell";
-import { Building2, ChevronRight, ChevronLeft, LayoutGrid, Search, X, ArrowLeft, Loader2 } from "lucide-react";
+import { Building2, ChevronRight, ChevronLeft, LayoutGrid, Search, X, ArrowLeft, Loader2, FileCheck2 } from "lucide-react";
 import { opdBySingkatanQueryOptions, layananByOpdIdQueryOptions } from "@/lib/queries";
+import { parsePersyaratan } from "@/lib/parse-persyaratan";
 
 type OpdSearch = { q?: string; page: number };
 
@@ -72,7 +73,7 @@ function OpdDetailPage() {
   const filtered = useMemo(() => {
     const q = (search.q ?? "").trim().toLowerCase();
     if (!q) return layanan;
-    return layanan.filter((l) => `${l.judul} ${l.deskripsi ?? ""}`.toLowerCase().includes(q));
+    return layanan.filter((l) => `${l.judul} ${l.persyaratan ?? ""}`.toLowerCase().includes(q));
   }, [layanan, search.q]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -165,25 +166,54 @@ function OpdDetailPage() {
 
         {pageItems.length > 0 && (
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {pageItems.map((l) => (
-              <Link
-                key={l.id}
-                to="/permohonan/baru"
-                search={{ layanan: l.slug } as never}
-                className="group flex flex-col rounded-2xl border border-border bg-card p-6 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-elevated"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary-soft text-primary transition-transform group-hover:scale-110">
-                    <LayoutGrid className="h-5 w-5" />
+            {pageItems.map((l) => {
+              const berkas = parsePersyaratan(l.persyaratan);
+              return (
+                <Link
+                  key={l.id}
+                  to="/permohonan/baru"
+                  search={{ layanan: l.slug } as never}
+                  className="group flex flex-col rounded-2xl border border-border bg-card p-6 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-elevated"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary-soft text-primary transition-transform group-hover:scale-110">
+                      <LayoutGrid className="h-5 w-5" />
+                    </div>
+                    <h3 className="font-semibold leading-tight">{l.judul}</h3>
                   </div>
-                  <h3 className="font-semibold leading-tight">{l.judul}</h3>
-                </div>
-                {l.deskripsi && <p className="mt-4 line-clamp-3 text-sm text-muted-foreground">{l.deskripsi}</p>}
-                <span className="mt-auto pt-5 inline-flex items-center gap-1 text-sm font-semibold text-primary">
-                  Ajukan permohonan <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </span>
-              </Link>
-            ))}
+
+                  <div className="mt-4 flex-1">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      <FileCheck2 className="h-3.5 w-3.5 text-primary" />
+                      Persyaratan berkas
+                    </div>
+                    {berkas.length > 0 ? (
+                      <ul className="mt-2 space-y-1.5 text-sm text-foreground">
+                        {berkas.slice(0, 5).map((b, i) => (
+                          <li key={i} className="flex gap-2">
+                            <span className="mt-1.5 inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary" />
+                            <span className="leading-snug">{b}</span>
+                          </li>
+                        ))}
+                        {berkas.length > 5 && (
+                          <li className="text-xs italic text-muted-foreground">
+                            +{berkas.length - 5} berkas lainnya…
+                          </li>
+                        )}
+                      </ul>
+                    ) : (
+                      <p className="mt-2 text-sm italic text-muted-foreground">
+                        Tidak ada berkas yang harus diunggah.
+                      </p>
+                    )}
+                  </div>
+
+                  <span className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-primary">
+                    Ajukan permohonan <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         )}
 

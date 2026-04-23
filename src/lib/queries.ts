@@ -45,6 +45,7 @@ export type LayananRingkas = {
   judul: string;
   slug: string;
   deskripsi: string | null;
+  persyaratan?: string | null;
 };
 
 export const layananHomeQueryOptions = () =>
@@ -150,7 +151,7 @@ export const layananByOpdIdQueryOptions = (opdId: string) =>
     queryFn: async (): Promise<LayananRingkas[]> => {
       const { data, error } = await supabase
         .from("layanan_publik")
-        .select("id,judul,slug,deskripsi")
+        .select("id,judul,slug,deskripsi,persyaratan")
         .eq("aktif", true)
         .eq("opd_id", opdId)
         .order("urutan");

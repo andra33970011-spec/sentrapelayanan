@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { PageShell } from "@/components/site/PageShell";
-import { ArrowLeft, ChevronRight, ClipboardList, ListChecks, Building2, FileText, Loader2 } from "lucide-react";
+import { ArrowLeft, ChevronRight, Building2, FileCheck2, Loader2, Info } from "lucide-react";
 import { layananBySlugQueryOptions, opdByIdQueryOptions } from "@/lib/queries";
+import { parsePersyaratan } from "@/lib/parse-persyaratan";
 
 export const Route = createFileRoute("/layanan/$slug")({
   head: ({ params }) => ({
@@ -74,42 +75,49 @@ function LayananDetailPage() {
         </section>
       )}
 
-      {item && (
-        <section className="container-page grid gap-6 py-12 lg:grid-cols-[1fr_320px]">
-          <div className="space-y-6">
-            {item.deskripsi && (
+      {item && (() => {
+        const berkas = parsePersyaratan(item.persyaratan);
+        return (
+          <section className="container-page grid gap-6 py-12 lg:grid-cols-[1fr_320px]">
+            <div className="space-y-6">
               <article className="rounded-2xl border border-border bg-card p-6 shadow-soft">
                 <h2 className="flex items-center gap-2 font-display text-lg font-bold">
-                  <FileText className="h-5 w-5 text-primary" /> Deskripsi Layanan
+                  <FileCheck2 className="h-5 w-5 text-primary" /> Persyaratan Berkas
                 </h2>
-                <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">{item.deskripsi}</p>
-              </article>
-            )}
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Berkas berikut wajib diunggah saat mengajukan permohonan layanan ini.
+                </p>
 
-            {item.persyaratan && (
-              <article className="rounded-2xl border border-border bg-card p-6 shadow-soft">
-                <h2 className="flex items-center gap-2 font-display text-lg font-bold">
-                  <ClipboardList className="h-5 w-5 text-primary" /> Persyaratan
-                </h2>
-                <pre className="mt-3 whitespace-pre-wrap font-sans text-sm leading-relaxed text-muted-foreground">{item.persyaratan}</pre>
-              </article>
-            )}
+                {berkas.length > 0 ? (
+                  <ol className="mt-5 space-y-3">
+                    {berkas.map((b, i) => (
+                      <li
+                        key={i}
+                        className="flex items-start gap-3 rounded-xl border border-border bg-surface p-3"
+                      >
+                        <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-primary-soft text-xs font-semibold text-primary">
+                          {i + 1}
+                        </span>
+                        <span className="pt-1 text-sm leading-snug text-foreground">{b}</span>
+                      </li>
+                    ))}
+                  </ol>
+                ) : (
+                  <div className="mt-5 flex items-start gap-3 rounded-xl border border-dashed border-border bg-surface p-4 text-sm text-muted-foreground">
+                    <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
+                    <span>
+                      Tidak ada berkas yang harus diunggah untuk layanan ini. Anda dapat
+                      langsung mengajukan permohonan.
+                    </span>
+                  </div>
+                )}
 
-            {item.alur && (
-              <article className="rounded-2xl border border-border bg-card p-6 shadow-soft">
-                <h2 className="flex items-center gap-2 font-display text-lg font-bold">
-                  <ListChecks className="h-5 w-5 text-primary" /> Alur Layanan
-                </h2>
-                <pre className="mt-3 whitespace-pre-wrap font-sans text-sm leading-relaxed text-muted-foreground">{item.alur}</pre>
+                <div className="mt-5 rounded-lg bg-muted/60 p-3 text-xs text-muted-foreground">
+                  Format yang diterima: <span className="font-medium">PDF, JPG, PNG, WebP</span> · maksimal
+                  <span className="font-medium"> 5 MB</span> per berkas, hingga 5 berkas.
+                </div>
               </article>
-            )}
-
-            {!item.deskripsi && !item.persyaratan && !item.alur && (
-              <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center text-muted-foreground">
-                Detail layanan belum tersedia.
-              </div>
-            )}
-          </div>
+            </div>
 
           <aside className="space-y-4 lg:sticky lg:top-24 lg:h-fit">
             <div className="rounded-2xl border border-border bg-gradient-to-br from-primary to-primary/80 p-6 text-primary-foreground shadow-elevated">
@@ -134,7 +142,8 @@ function LayananDetailPage() {
             )}
           </aside>
         </section>
-      )}
+        );
+      })()}
     </PageShell>
   );
 }
