@@ -142,7 +142,8 @@ function LayananDetailPage() {
             )}
           </aside>
         </section>
-      )}
+        );
+      })()}
     </PageShell>
   );
 }
