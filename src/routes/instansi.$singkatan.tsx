@@ -45,7 +45,7 @@ const PAGE_SIZE = 6;
 function OpdDetailPage() {
   const { singkatan } = Route.useParams();
   const search = Route.useSearch();
-  const navigate = useNavigate({ from: "/layanan/opd/$singkatan" });
+  const navigate = useNavigate({ from: "/instansi/$singkatan" });
 
   const [opd, setOpd] = useState<Opd | null>(null);
   const [layanan, setLayanan] = useState<Layanan[]>([]);
