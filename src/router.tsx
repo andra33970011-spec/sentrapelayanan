@@ -72,7 +72,13 @@ export const getRouter = () => {
     routeTree,
     context: { queryClient },
     scrollRestoration: true,
+    // Preload data + komponen segera setelah link disorot/hover — perpindahan halaman terasa instan.
+    defaultPreload: "intent",
+    defaultPreloadDelay: 50,
     defaultPreloadStaleTime: 0,
+    // Beri jeda agar pendingComponent tidak berkedip jika data datang cepat
+    defaultPendingMs: 200,
+    defaultPendingMinMs: 400,
     defaultErrorComponent: DefaultErrorComponent,
   });
 
