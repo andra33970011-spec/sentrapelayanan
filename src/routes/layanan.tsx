@@ -62,6 +62,7 @@ function LayananOpdPage() {
               key={o.id}
               to="/opd/$singkatan"
               params={{ singkatan: o.singkatan }}
+              search={{ page: 1 }}
               className="group flex flex-col rounded-2xl border border-border bg-card p-6 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-elevated"
             >
               <div className="flex items-center gap-3">
