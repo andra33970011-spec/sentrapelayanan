@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TentangRouteImport } from './routes/tentang'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as LayananRouteImport } from './routes/layanan'
-import { Route as LacakRouteImport } from './routes/lacak'
 import { Route as KontakRouteImport } from './routes/kontak'
 import { Route as DataRouteImport } from './routes/data'
 import { Route as BeritaRouteImport } from './routes/berita'
@@ -46,11 +45,6 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const LayananRoute = LayananRouteImport.update({
   id: '/layanan',
   path: '/layanan',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LacakRoute = LacakRouteImport.update({
-  id: '/lacak',
-  path: '/lacak',
   getParentRoute: () => rootRouteImport,
 } as any)
 const KontakRoute = KontakRouteImport.update({
@@ -155,7 +149,6 @@ export interface FileRoutesByFullPath {
   '/berita': typeof BeritaRoute
   '/data': typeof DataRoute
   '/kontak': typeof KontakRoute
-  '/lacak': typeof LacakRoute
   '/layanan': typeof LayananRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/tentang': typeof TentangRoute
@@ -180,7 +173,6 @@ export interface FileRoutesByTo {
   '/berita': typeof BeritaRoute
   '/data': typeof DataRoute
   '/kontak': typeof KontakRoute
-  '/lacak': typeof LacakRoute
   '/layanan': typeof LayananRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/tentang': typeof TentangRoute
@@ -206,7 +198,6 @@ export interface FileRoutesById {
   '/berita': typeof BeritaRoute
   '/data': typeof DataRoute
   '/kontak': typeof KontakRoute
-  '/lacak': typeof LacakRoute
   '/layanan': typeof LayananRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/tentang': typeof TentangRoute
@@ -233,7 +224,6 @@ export interface FileRouteTypes {
     | '/berita'
     | '/data'
     | '/kontak'
-    | '/lacak'
     | '/layanan'
     | '/reset-password'
     | '/tentang'
@@ -258,7 +248,6 @@ export interface FileRouteTypes {
     | '/berita'
     | '/data'
     | '/kontak'
-    | '/lacak'
     | '/layanan'
     | '/reset-password'
     | '/tentang'
@@ -283,7 +272,6 @@ export interface FileRouteTypes {
     | '/berita'
     | '/data'
     | '/kontak'
-    | '/lacak'
     | '/layanan'
     | '/reset-password'
     | '/tentang'
@@ -309,7 +297,6 @@ export interface RootRouteChildren {
   BeritaRoute: typeof BeritaRoute
   DataRoute: typeof DataRoute
   KontakRoute: typeof KontakRoute
-  LacakRoute: typeof LacakRoute
   LayananRoute: typeof LayananRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
   TentangRoute: typeof TentangRoute
@@ -349,13 +336,6 @@ declare module '@tanstack/react-router' {
       path: '/layanan'
       fullPath: '/layanan'
       preLoaderRoute: typeof LayananRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lacak': {
-      id: '/lacak'
-      path: '/lacak'
-      fullPath: '/lacak'
-      preLoaderRoute: typeof LacakRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/kontak': {
@@ -511,7 +491,6 @@ const rootRouteChildren: RootRouteChildren = {
   BeritaRoute: BeritaRoute,
   DataRoute: DataRoute,
   KontakRoute: KontakRoute,
-  LacakRoute: LacakRoute,
   LayananRoute: LayananRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
   TentangRoute: TentangRoute,

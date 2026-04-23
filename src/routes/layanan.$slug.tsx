@@ -112,18 +112,9 @@ function LayananDetailPage() {
                   </div>
                 )}
 
-                <div className="mt-5 grid gap-2 rounded-lg bg-muted/60 p-3 text-xs text-muted-foreground sm:grid-cols-2">
-                  <div>
-                    Format yang diterima: <span className="font-medium">PDF, JPG, PNG, WebP</span> · maksimal
-                    <span className="font-medium"> 5 MB</span> per berkas, hingga 5 berkas.
-                  </div>
-                  <div className="sm:text-right">
-                    Estimasi penyelesaian:{" "}
-                    <span className="font-semibold text-foreground">
-                      14 hari kerja
-                    </span>{" "}
-                    sejak permohonan diterima.
-                  </div>
+                <div className="mt-5 rounded-lg bg-muted/60 p-3 text-xs text-muted-foreground">
+                  Format yang diterima: <span className="font-medium">PDF, JPG, PNG, WebP</span> · maksimal
+                  <span className="font-medium"> 5 MB</span> per berkas, hingga 5 berkas.
                 </div>
               </article>
             </div>

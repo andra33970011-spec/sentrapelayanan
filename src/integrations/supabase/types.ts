@@ -315,33 +315,6 @@ export type Database = {
           },
         ]
       }
-      permohonan_rating: {
-        Row: {
-          created_at: string
-          id: string
-          komentar: string | null
-          pemohon_id: string
-          permohonan_id: string
-          skor: number
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          komentar?: string | null
-          pemohon_id: string
-          permohonan_id: string
-          skor: number
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          komentar?: string | null
-          pemohon_id?: string
-          permohonan_id?: string
-          skor?: number
-        }
-        Relationships: []
-      }
       permohonan_riwayat: {
         Row: {
           aksi: string
