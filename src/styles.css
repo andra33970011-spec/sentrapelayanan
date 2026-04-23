@@ -190,7 +190,7 @@
 
   /* Page / element entrance animations */
   @keyframes page-in {
-    from { opacity: 0; transform: translateY(8px); }
+    from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: translateY(0); }
   }
   @keyframes fade-in {
@@ -201,17 +201,18 @@
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
   }
-  .animate-page-in { animation: page-in 360ms cubic-bezier(0.22, 1, 0.36, 1) both; }
-  .animate-fade-in { animation: fade-in 320ms ease-out both; }
-  .stagger > * { animation: page-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both; }
-  .stagger > *:nth-child(1) { animation-delay: 40ms; }
-  .stagger > *:nth-child(2) { animation-delay: 90ms; }
-  .stagger > *:nth-child(3) { animation-delay: 140ms; }
-  .stagger > *:nth-child(4) { animation-delay: 190ms; }
-  .stagger > *:nth-child(5) { animation-delay: 240ms; }
-  .stagger > *:nth-child(6) { animation-delay: 290ms; }
-  .stagger > *:nth-child(7) { animation-delay: 340ms; }
-  .stagger > *:nth-child(8) { animation-delay: 390ms; }
+  /* Halus, cepat, tidak bikin "ngebuka" — durasi pendek menghindari kesan loading */
+  .animate-page-in { animation: page-in 240ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .animate-fade-in { animation: fade-in 220ms ease-out both; }
+  .stagger > * { animation: page-in 360ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .stagger > *:nth-child(1) { animation-delay: 30ms; }
+  .stagger > *:nth-child(2) { animation-delay: 70ms; }
+  .stagger > *:nth-child(3) { animation-delay: 110ms; }
+  .stagger > *:nth-child(4) { animation-delay: 150ms; }
+  .stagger > *:nth-child(5) { animation-delay: 190ms; }
+  .stagger > *:nth-child(6) { animation-delay: 230ms; }
+  .stagger > *:nth-child(7) { animation-delay: 270ms; }
+  .stagger > *:nth-child(8) { animation-delay: 310ms; }
 
   .skeleton-shimmer {
     background: linear-gradient(90deg,
