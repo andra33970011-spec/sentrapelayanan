@@ -102,9 +102,20 @@ function OpdDetailPage() {
       />
 
       <section className="container-page py-10">
-        <Link to="/opd" className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-4 w-4" /> Kembali ke daftar OPD
-        </Link>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <Link to="/opd" className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="h-4 w-4" /> Kembali ke daftar OPD
+          </Link>
+          {opd && (
+            <Link
+              to="/layanan"
+              search={{ opd: opd.singkatan, page: 1 } as never}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-primary-soft px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary-soft/70"
+            >
+              Lihat di katalog layanan <ChevronRight className="h-3.5 w-3.5" />
+            </Link>
+          )}
+        </div>
 
         {opd && opd.kategori.length > 0 && (
           <div className="mt-4 flex flex-wrap gap-1.5">
