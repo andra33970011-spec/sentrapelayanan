@@ -53,6 +53,7 @@ function BaruPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
   const [prefilling, setPrefilling] = useState<boolean>(!!layananSlug);
+  const [kategoriLain, setKategoriLain] = useState("");
 
   useEffect(() => {
     if (!loading && !user) {
@@ -95,6 +96,13 @@ function BaruPage() {
   }, [layananSlug]);
 
   const opd = opdList.find((o) => o.id === form.opd_id);
+  // Susun kategori: pisahkan "Lainnya" agar selalu di posisi terakhir & tidak duplikat.
+  const kategoriOptions = (() => {
+    if (!opd) return [] as string[];
+    const base = opd.kategori.filter((k) => k.toLowerCase() !== "lainnya");
+    return [...base, "Lainnya"];
+  })();
+  const isLainnya = form.kategori === "Lainnya";
 
   function onPickFiles(e: React.ChangeEvent<HTMLInputElement>) {
     const list = Array.from(e.target.files ?? []);
@@ -117,6 +125,13 @@ function BaruPage() {
     setBusy(true);
     try {
       const parsed = formSchema.parse(form);
+      // Jika "Lainnya", wajib isi detail dan simpan ke kategori sebagai "Lainnya: <detail>".
+      let kategoriFinal = parsed.kategori;
+      if (parsed.kategori === "Lainnya") {
+        const detail = kategoriLain.trim();
+        if (detail.length < 3) throw new Error("Sebutkan jenis layanan untuk kategori Lainnya (min. 3 karakter).");
+        kategoriFinal = `Lainnya: ${detail}`;
+      }
       const kode = generateKodePermohonan();
       const tenggat = new Date(Date.now() + 14 * 86400_000).toISOString();
 
@@ -127,7 +142,7 @@ function BaruPage() {
           pemohon_id: user.id,
           opd_id: parsed.opd_id,
           judul: parsed.judul,
-          kategori: parsed.kategori,
+          kategori: kategoriFinal,
           deskripsi: parsed.deskripsi || null,
           prioritas: parsed.prioritas,
           tenggat,
@@ -207,14 +222,27 @@ function BaruPage() {
               required
               disabled={!opd}
               value={form.kategori}
-              onChange={(e) => setForm({ ...form, kategori: e.target.value })}
+              onChange={(e) => {
+                setForm({ ...form, kategori: e.target.value });
+                if (e.target.value !== "Lainnya") setKategoriLain("");
+              }}
               className="input h-11"
             >
               <option value="">— Pilih kategori —</option>
-              {opd?.kategori.map((k) => (
+              {kategoriOptions.map((k) => (
                 <option key={k} value={k}>{k}</option>
               ))}
             </select>
+            {isLainnya && (
+              <input
+                required
+                value={kategoriLain}
+                onChange={(e) => setKategoriLain(e.target.value)}
+                className="input h-11 mt-2"
+                placeholder="Sebutkan jenis layanan yang dibutuhkan…"
+                maxLength={100}
+              />
+            )}
           </Field>
 
           <Field label="Judul Permohonan" required>
