@@ -1,4 +1,5 @@
 import { createRouter, useRouter } from "@tanstack/react-router";
+import { QueryClient } from "@tanstack/react-query";
 import { routeTree } from "./routeTree.gen";
 
 function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
@@ -55,9 +56,21 @@ function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => vo
 }
 
 export const getRouter = () => {
+  // Fresh QueryClient per request — mencegah kebocoran data antar request SSR
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 60_000, // 1 menit default
+        gcTime: 5 * 60_000, // 5 menit
+        refetchOnWindowFocus: false,
+        retry: 1,
+      },
+    },
+  });
+
   const router = createRouter({
     routeTree,
-    context: {},
+    context: { queryClient },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
     defaultErrorComponent: DefaultErrorComponent,
@@ -65,3 +78,9 @@ export const getRouter = () => {
 
   return router;
 };
+
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: ReturnType<typeof getRouter>;
+  }
+}
