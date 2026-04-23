@@ -53,6 +53,7 @@ function BaruPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
   const [prefilling, setPrefilling] = useState<boolean>(!!layananSlug);
+  const [kategoriLain, setKategoriLain] = useState("");
 
   useEffect(() => {
     if (!loading && !user) {
