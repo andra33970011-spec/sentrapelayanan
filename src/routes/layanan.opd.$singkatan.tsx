@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 type OpdSearch = { q?: string; page: number };
 
-export const Route = createFileRoute("/opd/$singkatan")({
+export const Route = createFileRoute("/layanan/opd/$singkatan")({
   validateSearch: (search: Record<string, unknown>): OpdSearch => ({
     q: typeof search.q === "string" && search.q.length > 0 ? search.q : undefined,
     page: typeof search.page === "number" && search.page > 0 ? Math.floor(search.page) : 1,
@@ -45,7 +45,7 @@ const PAGE_SIZE = 6;
 function OpdDetailPage() {
   const { singkatan } = Route.useParams();
   const search = Route.useSearch();
-  const navigate = useNavigate({ from: "/opd/$singkatan" });
+  const navigate = useNavigate({ from: "/layanan/opd/$singkatan" });
 
   const [opd, setOpd] = useState<Opd | null>(null);
   const [layanan, setLayanan] = useState<Layanan[]>([]);
