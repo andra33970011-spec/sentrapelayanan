@@ -103,7 +103,6 @@ function BaruPage() {
     return [...base, "Lainnya"];
   })();
   const isLainnya = form.kategori === "Lainnya";
-  const [kategoriLain, setKategoriLain] = useState("");
 
   function onPickFiles(e: React.ChangeEvent<HTMLInputElement>) {
     const list = Array.from(e.target.files ?? []);
