@@ -32,9 +32,9 @@ export function Footer() {
         <div>
           <h4 className="text-sm font-semibold text-foreground">Kontak</h4>
           <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
-            <li className="flex gap-2"><MapPin className="h-4 w-4 mt-0.5 text-primary" /> Jl. Merdeka No. 1, Kabupaten Buton Selatan</li>
-            <li className="flex gap-2"><Phone className="h-4 w-4 mt-0.5 text-primary" /> (021) 555-0100</li>
-            <li className="flex gap-2"><Mail className="h-4 w-4 mt-0.5 text-primary" /> info@butonselatan.go.id</li>
+            <li className="flex gap-2"><MapPin className="h-4 w-4 mt-0.5 text-primary" /><span>Jl. Merdeka No. 1, Kabupaten Buton Selatan</span></li>
+            <li className="flex gap-2"><Phone className="h-4 w-4 mt-0.5 text-primary" /><span>(021) 555-0100</span></li>
+            <li className="flex gap-2"><Mail className="h-4 w-4 mt-0.5 text-primary" /><span>info@butonselatan.go.id</span></li>
           </ul>
         </div>
       </div>
