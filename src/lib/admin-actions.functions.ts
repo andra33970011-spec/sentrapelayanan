@@ -493,3 +493,66 @@ export const deleteStorageObject = createServerFn({ method: "POST" })
     });
     return { ok: true };
   });
+
+// ============= IMPORT DATA (RESTORE) =============
+// Menerima payload backup penuh ({ tables: { nama_tabel: rows[] } }) lalu melakukan upsert
+// per tabel mengikuti primary key `id`. Tabel di-restore mengikuti urutan dependensi.
+const RESTORE_ORDER = [
+  "opd",
+  "kategori_layanan",
+  "layanan_publik",
+  "profiles",
+  "user_roles",
+  "berita",
+  "permohonan",
+  "permohonan_riwayat",
+  "audit_log",
+  "job_queue",
+] as const;
+
+type RestoreTable = (typeof RESTORE_ORDER)[number];
+
+const importSchema = z.object({
+  tables: z.record(z.string(), z.array(z.record(z.string(), z.unknown()))),
+});
+
+export const importBackup = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => importSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { userId } = context;
+    await assertSuperAdmin(userId);
+    const rl = await checkRateLimit(userId, "import", 5, 60);
+    if (!rl.ok) throw new Error("Too many requests");
+
+    const summary: Record<string, { inserted: number; error?: string }> = {};
+
+    for (const tabel of RESTORE_ORDER) {
+      const rows = data.tables[tabel];
+      if (!rows || rows.length === 0) continue;
+      const chunkSize = 500;
+      let inserted = 0;
+      let lastError: string | undefined;
+      for (let i = 0; i < rows.length; i += chunkSize) {
+        const chunk = rows.slice(i, i + chunkSize);
+        const { error, count } = await supabaseAdmin
+          .from(tabel as RestoreTable)
+          .upsert(chunk as never, { onConflict: "id", count: "exact" });
+        if (error) {
+          lastError = error.message;
+          break;
+        }
+        inserted += count ?? chunk.length;
+      }
+      summary[tabel] = lastError ? { inserted, error: lastError } : { inserted };
+    }
+
+    await supabaseAdmin.from("audit_log").insert({
+      user_id: userId,
+      aksi: "data.import",
+      entitas: "backup",
+      data_sesudah: summary as never,
+    });
+
+    return { ok: true, summary };
+  });
