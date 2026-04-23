@@ -37,6 +37,12 @@ const formSchema = z.object({
 
 const MAX_FILES = 5;
 const MAX_FILE_BYTES = 5 * 1024 * 1024; // 5 MB
+const ALLOWED_MIME = new Set([
+  "application/pdf",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+]);
 
 function BaruPage() {
   const { user, loading } = useAuth();
@@ -111,6 +117,10 @@ function BaruPage() {
       if (next.length >= MAX_FILES) break;
       if (f.size > MAX_FILE_BYTES) {
         toast.error(`${f.name} melebihi 5 MB`);
+        continue;
+      }
+      if (!ALLOWED_MIME.has(f.type)) {
+        toast.error(`${f.name}: tipe berkas tidak didukung (PDF/JPG/PNG/WebP).`);
         continue;
       }
       next.push(f);
