@@ -28,7 +28,7 @@ export const Route = createFileRoute("/opd/$singkatan")({
           <Building2 className="mx-auto h-12 w-12 text-muted-foreground" />
           <h1 className="mt-4 font-display text-2xl font-bold">OPD "{singkatan}" tidak ditemukan</h1>
           <p className="mt-2 text-sm text-muted-foreground">Periksa kembali singkatan OPD pada URL.</p>
-          <Link to="/opd" className="mt-6 inline-flex items-center gap-1 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
+          <Link to="/layanan" className="mt-6 inline-flex items-center gap-1 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
             <ArrowLeft className="h-4 w-4" /> Kembali ke daftar OPD
           </Link>
         </section>
@@ -103,7 +103,7 @@ function OpdDetailPage() {
 
       <section className="container-page py-10">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <Link to="/opd" className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground">
+          <Link to="/layanan" className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-4 w-4" /> Kembali ke daftar OPD
           </Link>
           {opd && (
