@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth-context";
 const navItems = [
   { to: "/", label: "Beranda" },
   { to: "/layanan", label: "Layanan" },
+  { to: "/lacak", label: "Lacak" },
   { to: "/data", label: "Data Terpadu" },
   { to: "/berita", label: "Berita" },
   { to: "/tentang", label: "Tentang" },
