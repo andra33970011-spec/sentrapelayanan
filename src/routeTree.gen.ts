@@ -18,7 +18,6 @@ import { Route as BeritaRouteImport } from './routes/berita'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PermohonanIndexRouteImport } from './routes/permohonan.index'
-import { Route as OpdIndexRouteImport } from './routes/opd.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as PermohonanBaruRouteImport } from './routes/permohonan.baru'
 import { Route as OpdSingkatanRouteImport } from './routes/opd.$singkatan'
@@ -76,11 +75,6 @@ const IndexRoute = IndexRouteImport.update({
 const PermohonanIndexRoute = PermohonanIndexRouteImport.update({
   id: '/permohonan/',
   path: '/permohonan/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OpdIndexRoute = OpdIndexRouteImport.update({
-  id: '/opd/',
-  path: '/opd/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -170,7 +164,6 @@ export interface FileRoutesByFullPath {
   '/opd/$singkatan': typeof OpdSingkatanRoute
   '/permohonan/baru': typeof PermohonanBaruRoute
   '/admin/': typeof AdminIndexRoute
-  '/opd/': typeof OpdIndexRoute
   '/permohonan/': typeof PermohonanIndexRoute
   '/admin/permohonan/$id': typeof AdminPermohonanIdRoute
 }
@@ -195,7 +188,6 @@ export interface FileRoutesByTo {
   '/opd/$singkatan': typeof OpdSingkatanRoute
   '/permohonan/baru': typeof PermohonanBaruRoute
   '/admin': typeof AdminIndexRoute
-  '/opd': typeof OpdIndexRoute
   '/permohonan': typeof PermohonanIndexRoute
   '/admin/permohonan/$id': typeof AdminPermohonanIdRoute
 }
@@ -221,7 +213,6 @@ export interface FileRoutesById {
   '/opd/$singkatan': typeof OpdSingkatanRoute
   '/permohonan/baru': typeof PermohonanBaruRoute
   '/admin/': typeof AdminIndexRoute
-  '/opd/': typeof OpdIndexRoute
   '/permohonan/': typeof PermohonanIndexRoute
   '/admin/permohonan/$id': typeof AdminPermohonanIdRoute
 }
@@ -248,7 +239,6 @@ export interface FileRouteTypes {
     | '/opd/$singkatan'
     | '/permohonan/baru'
     | '/admin/'
-    | '/opd/'
     | '/permohonan/'
     | '/admin/permohonan/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -273,7 +263,6 @@ export interface FileRouteTypes {
     | '/opd/$singkatan'
     | '/permohonan/baru'
     | '/admin'
-    | '/opd'
     | '/permohonan'
     | '/admin/permohonan/$id'
   id:
@@ -298,7 +287,6 @@ export interface FileRouteTypes {
     | '/opd/$singkatan'
     | '/permohonan/baru'
     | '/admin/'
-    | '/opd/'
     | '/permohonan/'
     | '/admin/permohonan/$id'
   fileRoutesById: FileRoutesById
@@ -323,7 +311,6 @@ export interface RootRouteChildren {
   OpdSingkatanRoute: typeof OpdSingkatanRoute
   PermohonanBaruRoute: typeof PermohonanBaruRoute
   AdminIndexRoute: typeof AdminIndexRoute
-  OpdIndexRoute: typeof OpdIndexRoute
   PermohonanIndexRoute: typeof PermohonanIndexRoute
   AdminPermohonanIdRoute: typeof AdminPermohonanIdRoute
 }
@@ -391,13 +378,6 @@ declare module '@tanstack/react-router' {
       path: '/permohonan'
       fullPath: '/permohonan/'
       preLoaderRoute: typeof PermohonanIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/opd/': {
-      id: '/opd/'
-      path: '/opd'
-      fullPath: '/opd/'
-      preLoaderRoute: typeof OpdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -525,10 +505,18 @@ const rootRouteChildren: RootRouteChildren = {
   OpdSingkatanRoute: OpdSingkatanRoute,
   PermohonanBaruRoute: PermohonanBaruRoute,
   AdminIndexRoute: AdminIndexRoute,
-  OpdIndexRoute: OpdIndexRoute,
   PermohonanIndexRoute: PermohonanIndexRoute,
   AdminPermohonanIdRoute: AdminPermohonanIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
