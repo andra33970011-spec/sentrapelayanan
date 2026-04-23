@@ -21,6 +21,7 @@ import { Route as PermohonanIndexRouteImport } from './routes/permohonan.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as PermohonanBaruRouteImport } from './routes/permohonan.baru'
 import { Route as LayananSlugRouteImport } from './routes/layanan.$slug'
+import { Route as InstansiSingkatanRouteImport } from './routes/instansi.$singkatan'
 import { Route as HooksQueueWorkerRouteImport } from './routes/hooks.queue-worker'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminStorageRouteImport } from './routes/admin.storage'
@@ -29,7 +30,6 @@ import { Route as AdminConfigRouteImport } from './routes/admin.config'
 import { Route as AdminCmsRouteImport } from './routes/admin.cms'
 import { Route as AdminBackupRouteImport } from './routes/admin.backup'
 import { Route as AdminAuditRouteImport } from './routes/admin.audit'
-import { Route as LayananOpdSingkatanRouteImport } from './routes/layanan.opd.$singkatan'
 import { Route as AdminPermohonanIdRouteImport } from './routes/admin.permohonan.$id'
 
 const TentangRoute = TentangRouteImport.update({
@@ -92,6 +92,11 @@ const LayananSlugRoute = LayananSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => LayananRoute,
 } as any)
+const InstansiSingkatanRoute = InstansiSingkatanRouteImport.update({
+  id: '/instansi/$singkatan',
+  path: '/instansi/$singkatan',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HooksQueueWorkerRoute = HooksQueueWorkerRouteImport.update({
   id: '/hooks/queue-worker',
   path: '/hooks/queue-worker',
@@ -132,11 +137,6 @@ const AdminAuditRoute = AdminAuditRouteImport.update({
   path: '/admin/audit',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LayananOpdSingkatanRoute = LayananOpdSingkatanRouteImport.update({
-  id: '/opd/$singkatan',
-  path: '/opd/$singkatan',
-  getParentRoute: () => LayananRoute,
-} as any)
 const AdminPermohonanIdRoute = AdminPermohonanIdRouteImport.update({
   id: '/admin/permohonan/$id',
   path: '/admin/permohonan/$id',
@@ -160,12 +160,12 @@ export interface FileRoutesByFullPath {
   '/admin/storage': typeof AdminStorageRoute
   '/admin/users': typeof AdminUsersRoute
   '/hooks/queue-worker': typeof HooksQueueWorkerRoute
+  '/instansi/$singkatan': typeof InstansiSingkatanRoute
   '/layanan/$slug': typeof LayananSlugRoute
   '/permohonan/baru': typeof PermohonanBaruRoute
   '/admin/': typeof AdminIndexRoute
   '/permohonan/': typeof PermohonanIndexRoute
   '/admin/permohonan/$id': typeof AdminPermohonanIdRoute
-  '/layanan/opd/$singkatan': typeof LayananOpdSingkatanRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -184,12 +184,12 @@ export interface FileRoutesByTo {
   '/admin/storage': typeof AdminStorageRoute
   '/admin/users': typeof AdminUsersRoute
   '/hooks/queue-worker': typeof HooksQueueWorkerRoute
+  '/instansi/$singkatan': typeof InstansiSingkatanRoute
   '/layanan/$slug': typeof LayananSlugRoute
   '/permohonan/baru': typeof PermohonanBaruRoute
   '/admin': typeof AdminIndexRoute
   '/permohonan': typeof PermohonanIndexRoute
   '/admin/permohonan/$id': typeof AdminPermohonanIdRoute
-  '/layanan/opd/$singkatan': typeof LayananOpdSingkatanRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -209,12 +209,12 @@ export interface FileRoutesById {
   '/admin/storage': typeof AdminStorageRoute
   '/admin/users': typeof AdminUsersRoute
   '/hooks/queue-worker': typeof HooksQueueWorkerRoute
+  '/instansi/$singkatan': typeof InstansiSingkatanRoute
   '/layanan/$slug': typeof LayananSlugRoute
   '/permohonan/baru': typeof PermohonanBaruRoute
   '/admin/': typeof AdminIndexRoute
   '/permohonan/': typeof PermohonanIndexRoute
   '/admin/permohonan/$id': typeof AdminPermohonanIdRoute
-  '/layanan/opd/$singkatan': typeof LayananOpdSingkatanRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -235,12 +235,12 @@ export interface FileRouteTypes {
     | '/admin/storage'
     | '/admin/users'
     | '/hooks/queue-worker'
+    | '/instansi/$singkatan'
     | '/layanan/$slug'
     | '/permohonan/baru'
     | '/admin/'
     | '/permohonan/'
     | '/admin/permohonan/$id'
-    | '/layanan/opd/$singkatan'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -259,12 +259,12 @@ export interface FileRouteTypes {
     | '/admin/storage'
     | '/admin/users'
     | '/hooks/queue-worker'
+    | '/instansi/$singkatan'
     | '/layanan/$slug'
     | '/permohonan/baru'
     | '/admin'
     | '/permohonan'
     | '/admin/permohonan/$id'
-    | '/layanan/opd/$singkatan'
   id:
     | '__root__'
     | '/'
@@ -283,12 +283,12 @@ export interface FileRouteTypes {
     | '/admin/storage'
     | '/admin/users'
     | '/hooks/queue-worker'
+    | '/instansi/$singkatan'
     | '/layanan/$slug'
     | '/permohonan/baru'
     | '/admin/'
     | '/permohonan/'
     | '/admin/permohonan/$id'
-    | '/layanan/opd/$singkatan'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -308,6 +308,7 @@ export interface RootRouteChildren {
   AdminStorageRoute: typeof AdminStorageRoute
   AdminUsersRoute: typeof AdminUsersRoute
   HooksQueueWorkerRoute: typeof HooksQueueWorkerRoute
+  InstansiSingkatanRoute: typeof InstansiSingkatanRoute
   PermohonanBaruRoute: typeof PermohonanBaruRoute
   AdminIndexRoute: typeof AdminIndexRoute
   PermohonanIndexRoute: typeof PermohonanIndexRoute
@@ -400,6 +401,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayananSlugRouteImport
       parentRoute: typeof LayananRoute
     }
+    '/instansi/$singkatan': {
+      id: '/instansi/$singkatan'
+      path: '/instansi/$singkatan'
+      fullPath: '/instansi/$singkatan'
+      preLoaderRoute: typeof InstansiSingkatanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/hooks/queue-worker': {
       id: '/hooks/queue-worker'
       path: '/hooks/queue-worker'
@@ -456,13 +464,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAuditRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/layanan/opd/$singkatan': {
-      id: '/layanan/opd/$singkatan'
-      path: '/opd/$singkatan'
-      fullPath: '/layanan/opd/$singkatan'
-      preLoaderRoute: typeof LayananOpdSingkatanRouteImport
-      parentRoute: typeof LayananRoute
-    }
     '/admin/permohonan/$id': {
       id: '/admin/permohonan/$id'
       path: '/admin/permohonan/$id'
@@ -475,12 +476,10 @@ declare module '@tanstack/react-router' {
 
 interface LayananRouteChildren {
   LayananSlugRoute: typeof LayananSlugRoute
-  LayananOpdSingkatanRoute: typeof LayananOpdSingkatanRoute
 }
 
 const LayananRouteChildren: LayananRouteChildren = {
   LayananSlugRoute: LayananSlugRoute,
-  LayananOpdSingkatanRoute: LayananOpdSingkatanRoute,
 }
 
 const LayananRouteWithChildren =
@@ -503,6 +502,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminStorageRoute: AdminStorageRoute,
   AdminUsersRoute: AdminUsersRoute,
   HooksQueueWorkerRoute: HooksQueueWorkerRoute,
+  InstansiSingkatanRoute: InstansiSingkatanRoute,
   PermohonanBaruRoute: PermohonanBaruRoute,
   AdminIndexRoute: AdminIndexRoute,
   PermohonanIndexRoute: PermohonanIndexRoute,
