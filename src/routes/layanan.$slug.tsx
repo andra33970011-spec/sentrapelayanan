@@ -132,6 +132,7 @@ function LayananDetailPage() {
               </p>
               <Link
                 to="/permohonan/baru"
+                search={{ layanan: item.slug } as never}
                 className="mt-4 inline-flex w-full items-center justify-center gap-1 rounded-md bg-white px-4 py-2 text-sm font-semibold text-primary hover:bg-white/95 transition-colors"
               >
                 Ajukan Permohonan <ChevronRight className="h-4 w-4" />

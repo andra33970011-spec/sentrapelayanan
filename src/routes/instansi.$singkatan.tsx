@@ -179,8 +179,8 @@ function OpdDetailPage() {
             {pageItems.map((l) => (
               <Link
                 key={l.id}
-                to="/layanan/$slug"
-                params={{ slug: l.slug }}
+                to="/permohonan/baru"
+                search={{ layanan: l.slug } as never}
                 className="group flex flex-col rounded-2xl border border-border bg-card p-6 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-elevated"
               >
                 <div className="flex items-center gap-3">
@@ -191,7 +191,7 @@ function OpdDetailPage() {
                 </div>
                 {l.deskripsi && <p className="mt-4 line-clamp-3 text-sm text-muted-foreground">{l.deskripsi}</p>}
                 <span className="mt-auto pt-5 inline-flex items-center gap-1 text-sm font-semibold text-primary">
-                  Lihat detail <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  Ajukan permohonan <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </span>
               </Link>
             ))}
