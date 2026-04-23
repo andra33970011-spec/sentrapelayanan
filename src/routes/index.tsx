@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+import { useState, Suspense } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
   ArrowRight, ShieldCheck, Database, Users, Megaphone, Search, LayoutGrid,
 } from "lucide-react";
 import { PageShell } from "@/components/site/PageShell";
-import { supabase } from "@/integrations/supabase/client";
+import { HomeLayananSkeleton } from "@/components/site/Skeletons";
+import { layananHomeQueryOptions } from "@/lib/queries";
 import heroImg from "@/assets/hero-city.jpg";
 
 export const Route = createFileRoute("/")({
@@ -17,12 +19,12 @@ export const Route = createFileRoute("/")({
       { property: "og:description", content: "Sentralisasi data dan pelayanan publik kota dalam satu portal." },
     ],
   }),
+  loader: ({ context: { queryClient } }) => {
+    // Prefetch tanpa await agar hero langsung tampil; data layanan stream via Suspense
+    queryClient.prefetchQuery(layananHomeQueryOptions());
+  },
   component: HomePage,
 });
-
-type LayananRow = {
-  id: string; judul: string; slug: string; deskripsi: string | null;
-};
 
 const stats = [
   { label: "Layanan Online", value: "127" },
@@ -31,20 +33,44 @@ const stats = [
   { label: "Kepuasan Warga", value: "94%" },
 ];
 
+function LayananGrid() {
+  const { data: layanan } = useSuspenseQuery(layananHomeQueryOptions());
+
+  if (layanan.length === 0) {
+    return (
+      <div className="mt-10 rounded-2xl border border-dashed border-border bg-card p-12 text-center text-muted-foreground">
+        Belum ada layanan publik yang aktif.
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {layanan.map((s) => (
+        <motion.div key={s.id} whileHover={{ y: -4 }}>
+          <Link
+            to="/layanan/$slug"
+            params={{ slug: s.slug }}
+            className="group block h-full rounded-2xl border border-border bg-card p-6 shadow-soft transition-shadow hover:shadow-elevated"
+          >
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-soft text-primary">
+              <LayoutGrid className="h-6 w-6" />
+            </div>
+            <h3 className="mt-5 text-lg font-semibold">{s.judul}</h3>
+            {s.deskripsi && <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{s.deskripsi}</p>}
+            <div className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
+              Akses layanan <ArrowRight className="h-4 w-4" />
+            </div>
+          </Link>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
 function HomePage() {
-  const [layanan, setLayanan] = useState<LayananRow[]>([]);
   const [q, setQ] = useState("");
   const navigate = useNavigate();
-
-  useEffect(() => {
-    supabase
-      .from("layanan_publik")
-      .select("id,judul,slug,deskripsi")
-      .eq("aktif", true)
-      .order("urutan")
-      .limit(6)
-      .then(({ data }) => setLayanan((data ?? []) as LayananRow[]));
-  }, []);
 
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -132,32 +158,9 @@ function HomePage() {
           </Link>
         </div>
 
-        {layanan.length === 0 ? (
-          <div className="mt-10 rounded-2xl border border-dashed border-border bg-card p-12 text-center text-muted-foreground">
-            Memuat layanan…
-          </div>
-        ) : (
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {layanan.map((s) => (
-              <motion.div key={s.id} whileHover={{ y: -4 }}>
-                <Link
-                  to="/layanan/$slug"
-                  params={{ slug: s.slug }}
-                  className="group block h-full rounded-2xl border border-border bg-card p-6 shadow-soft transition-shadow hover:shadow-elevated"
-                >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-soft text-primary">
-                    <LayoutGrid className="h-6 w-6" />
-                  </div>
-                  <h3 className="mt-5 text-lg font-semibold">{s.judul}</h3>
-                  {s.deskripsi && <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{s.deskripsi}</p>}
-                  <div className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
-                    Akses layanan <ArrowRight className="h-4 w-4" />
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-        )}
+        <Suspense fallback={<HomeLayananSkeleton />}>
+          <LayananGrid />
+        </Suspense>
 
         <div className="mt-8 text-center md:hidden">
           <Link to="/layanan" className="inline-flex items-center gap-1 text-sm font-semibold text-primary">
