@@ -1,15 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { PageShell, PageHero } from "@/components/site/PageShell";
-import { LayoutGrid, ChevronRight, Search, X, Building2 } from "lucide-react";
+import { LayoutGrid, ChevronRight, ChevronLeft, Search, X, Building2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
-type LayananSearch = { q?: string; opd?: string };
+type LayananSearch = { q?: string; opd?: string; page: number };
 
 export const Route = createFileRoute("/layanan")({
   validateSearch: (search: Record<string, unknown>): LayananSearch => ({
     q: typeof search.q === "string" && search.q.length > 0 ? search.q : undefined,
     opd: typeof search.opd === "string" && search.opd.length > 0 ? search.opd : undefined,
+    page: typeof search.page === "number" && search.page > 0 ? Math.floor(search.page) : 1,
   }),
   head: () => ({
     meta: [
@@ -27,6 +28,8 @@ type Layanan = {
   alur: string | null; opd_id: string | null;
 };
 type Opd = { id: string; singkatan: string; nama: string };
+
+const PAGE_SIZE = 9;
 
 function LayananPage() {
   const search = Route.useSearch();
@@ -56,27 +59,43 @@ function LayananPage() {
     return m;
   }, [opds]);
 
+  // Resolve filter param: bisa berupa singkatan (dari /opd/$singkatan) atau UUID (legacy)
+  const activeOpd = useMemo<Opd | null>(() => {
+    if (!search.opd) return null;
+    return opds.find((o) => o.singkatan === search.opd || o.id === search.opd) ?? null;
+  }, [opds, search.opd]);
+
   const filtered = useMemo(() => {
     const q = (search.q ?? "").trim().toLowerCase();
     return items.filter((l) => {
-      if (search.opd && l.opd_id !== search.opd) return false;
+      if (activeOpd && l.opd_id !== activeOpd.id) return false;
       if (q && !(`${l.judul} ${l.deskripsi ?? ""}`.toLowerCase().includes(q))) return false;
       return true;
     });
-  }, [items, search.q, search.opd]);
+  }, [items, search.q, activeOpd]);
 
-  const setOpd = (opdId: string | undefined) => {
-    navigate({ search: (prev: LayananSearch) => ({ ...prev, opd: opdId }), replace: true });
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(search.page, totalPages);
+  const pageItems = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  // Setter selalu memakai SINGKATAN agar URL bisa di-share & cocok dengan /opd/$singkatan
+  const setOpd = (singkatan: string | undefined) => {
+    navigate({ search: (prev: LayananSearch) => ({ ...prev, opd: singkatan, page: 1 }), replace: true });
   };
 
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    navigate({ search: (prev: LayananSearch) => ({ ...prev, q: qInput.trim() || undefined }), replace: true });
+    navigate({ search: (prev: LayananSearch) => ({ ...prev, q: qInput.trim() || undefined, page: 1 }), replace: true });
+  };
+
+  const goPage = (p: number) => {
+    navigate({ search: (prev: LayananSearch) => ({ ...prev, page: p }), replace: true });
+    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const clearAll = () => {
     setQInput("");
-    navigate({ search: {}, replace: true });
+    navigate({ search: { page: 1 }, replace: true });
   };
 
   const hasFilter = !!(search.q || search.opd);
@@ -90,6 +109,28 @@ function LayananPage() {
       />
 
       <section className="container-page py-10">
+        {/* Banner OPD aktif */}
+        {activeOpd && (
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary-soft px-4 py-3 text-sm">
+            <div className="flex items-center gap-2 text-primary">
+              <Building2 className="h-4 w-4" />
+              <span>Memfilter layanan dari <strong>{activeOpd.nama}</strong> ({activeOpd.singkatan})</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Link
+                to="/opd/$singkatan"
+                params={{ singkatan: activeOpd.singkatan }}
+                className="text-xs font-semibold text-primary hover:underline"
+              >
+                Lihat profil OPD →
+              </Link>
+              <button onClick={() => setOpd(undefined)} className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
+                <X className="h-3 w-3" /> Hapus filter
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Search & Filter Bar */}
         <div className="rounded-2xl border border-border bg-card p-4 shadow-soft md:p-5">
           <form onSubmit={submitSearch} className="flex flex-col gap-3 md:flex-row md:items-center">
@@ -120,7 +161,7 @@ function LayananPage() {
             <button
               onClick={() => setOpd(undefined)}
               className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                !search.opd ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"
+                !activeOpd ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"
               }`}
             >
               Semua
@@ -128,10 +169,10 @@ function LayananPage() {
             {opds.map((o) => (
               <button
                 key={o.id}
-                onClick={() => setOpd(o.id)}
+                onClick={() => setOpd(o.singkatan)}
                 title={o.nama}
                 className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                  search.opd === o.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"
+                  activeOpd?.id === o.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"
                 }`}
               >
                 {o.singkatan}
@@ -147,9 +188,12 @@ function LayananPage() {
 
         {/* Status hasil */}
         {!loading && (
-          <div className="mt-6 text-sm text-muted-foreground">
-            Menampilkan <span className="font-semibold text-foreground">{filtered.length}</span> dari {items.length} layanan
-            {hasFilter && " (tersaring)"}
+          <div className="mt-6 flex items-center justify-between text-sm text-muted-foreground">
+            <span>
+              Menampilkan <span className="font-semibold text-foreground">{pageItems.length}</span> dari {filtered.length} layanan
+              {hasFilter && " (tersaring)"}
+            </span>
+            {totalPages > 1 && <span>Halaman {currentPage} / {totalPages}</span>}
           </div>
         )}
       </section>
@@ -176,30 +220,63 @@ function LayananPage() {
           </div>
         )}
 
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((l) => (
-            <Link
-              key={l.id}
-              to="/layanan/$slug"
-              params={{ slug: l.slug }}
-              className="group flex flex-col rounded-2xl border border-border bg-card p-6 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-elevated"
+        {pageItems.length > 0 && (
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {pageItems.map((l) => (
+              <Link
+                key={l.id}
+                to="/layanan/$slug"
+                params={{ slug: l.slug }}
+                className="group flex flex-col rounded-2xl border border-border bg-card p-6 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-elevated"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary-soft text-primary transition-transform group-hover:scale-110">
+                    <LayoutGrid className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold leading-tight">{l.judul}</h3>
+                    {l.opd_id && opdMap[l.opd_id] && <div className="text-xs text-muted-foreground">{opdMap[l.opd_id].singkatan}</div>}
+                  </div>
+                </div>
+                {l.deskripsi && <p className="mt-4 line-clamp-3 text-sm text-muted-foreground">{l.deskripsi}</p>}
+                <span className="mt-auto pt-5 inline-flex items-center gap-1 text-sm font-semibold text-primary">
+                  Lihat detail <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-1">
+            <button
+              onClick={() => goPage(currentPage - 1)}
+              disabled={currentPage <= 1}
+              className="inline-flex h-9 items-center gap-1 rounded-lg border border-border bg-card px-3 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50 hover:bg-muted"
             >
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary-soft text-primary transition-transform group-hover:scale-110">
-                  <LayoutGrid className="h-5 w-5" />
-                </div>
-                <div>
-                  <h3 className="font-semibold leading-tight">{l.judul}</h3>
-                  {l.opd_id && opdMap[l.opd_id] && <div className="text-xs text-muted-foreground">{opdMap[l.opd_id].singkatan}</div>}
-                </div>
-              </div>
-              {l.deskripsi && <p className="mt-4 line-clamp-3 text-sm text-muted-foreground">{l.deskripsi}</p>}
-              <span className="mt-auto pt-5 inline-flex items-center gap-1 text-sm font-semibold text-primary">
-                Lihat detail <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </span>
-            </Link>
-          ))}
-        </div>
+              <ChevronLeft className="h-4 w-4" /> Sebelumnya
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+              <button
+                key={p}
+                onClick={() => goPage(p)}
+                className={`h-9 w-9 rounded-lg text-sm font-medium ${
+                  p === currentPage ? "bg-primary text-primary-foreground" : "border border-border bg-card hover:bg-muted"
+                }`}
+              >
+                {p}
+              </button>
+            ))}
+            <button
+              onClick={() => goPage(currentPage + 1)}
+              disabled={currentPage >= totalPages}
+              className="inline-flex h-9 items-center gap-1 rounded-lg border border-border bg-card px-3 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50 hover:bg-muted"
+            >
+              Berikutnya <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        )}
       </section>
     </PageShell>
   );
