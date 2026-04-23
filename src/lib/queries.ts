@@ -1,5 +1,28 @@
-import { queryOptions } from "@tanstack/react-query";
+import { queryOptions, type QueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+
+/**
+ * Invalidasi cache untuk halaman publik setelah mutasi CMS.
+ * Dipanggil dari admin (CMS, OPD) agar pengunjung melihat data terbaru
+ * tanpa perlu reload paksa.
+ */
+export const invalidateBerita = (qc: QueryClient) =>
+  qc.invalidateQueries({ queryKey: ["berita"] });
+
+export const invalidateLayanan = (qc: QueryClient) =>
+  Promise.all([
+    qc.invalidateQueries({ queryKey: ["layanan"] }),
+    // count per OPD ikut berubah saat layanan di-CRUD
+    qc.invalidateQueries({ queryKey: ["layanan", "count-by-opd"] }),
+  ]);
+
+export const invalidateOpd = (qc: QueryClient) =>
+  Promise.all([
+    qc.invalidateQueries({ queryKey: ["opd"] }),
+    // detail layanan menyertakan info OPD pengelola
+    qc.invalidateQueries({ queryKey: ["layanan"] }),
+  ]);
+
 
 export type Berita = {
   id: string;
