@@ -1,14 +1,14 @@
 // Backup & disaster recovery — Super Admin.
-// Export tabel-tabel kunci sebagai JSON / CSV.
-// Memanggil server function exportTable yang bypass RLS dengan pembatasan rate.
-import { useState } from "react";
+// Satu tombol untuk backup semua tabel sekaligus (file JSON gabungan)
+// dan fitur upload restore yang mendistribusikan kembali datanya per tabel.
+import { useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Download, Loader2, Database, AlertTriangle } from "lucide-react";
+import { Download, Loader2, Database, AlertTriangle, Upload, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { AdminGuard } from "@/components/admin/AdminGuard";
 import { useAuth } from "@/lib/auth-context";
-import { exportTable, enqueueJob } from "@/lib/admin-actions.functions";
+import { exportTable, enqueueJob, importBackup } from "@/lib/admin-actions.functions";
 
 export const Route = createFileRoute("/admin/backup")({
   head: () => ({ meta: [{ title: "Backup Data — Admin" }, { name: "robots", content: "noindex" }] }),
@@ -20,27 +20,19 @@ export const Route = createFileRoute("/admin/backup")({
 });
 
 const TABLES = [
-  { id: "profiles", label: "Profil Pengguna" },
-  { id: "user_roles", label: "Peran User" },
-  { id: "opd", label: "OPD" },
-  { id: "permohonan", label: "Permohonan" },
-  { id: "permohonan_riwayat", label: "Riwayat Permohonan" },
-  { id: "audit_log", label: "Audit Log" },
-  { id: "job_queue", label: "Job Queue" },
+  "profiles",
+  "user_roles",
+  "opd",
+  "kategori_layanan",
+  "layanan_publik",
+  "berita",
+  "permohonan",
+  "permohonan_riwayat",
+  "audit_log",
+  "job_queue",
 ] as const;
 
-type TableId = (typeof TABLES)[number]["id"];
-
-function toCSV(rows: Record<string, unknown>[]): string {
-  if (rows.length === 0) return "";
-  const cols = Array.from(rows.reduce((set, r) => { Object.keys(r).forEach((k) => set.add(k)); return set; }, new Set<string>()));
-  const escape = (v: unknown) => {
-    if (v === null || v === undefined) return "";
-    const s = typeof v === "object" ? JSON.stringify(v) : String(v);
-    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-  };
-  return [cols.join(","), ...rows.map((r) => cols.map((c) => escape(r[c])).join(","))].join("\n");
-}
+type TableId = (typeof TABLES)[number];
 
 function download(filename: string, content: string, mime: string) {
   const blob = new Blob([content], { type: mime });
@@ -52,25 +44,75 @@ function download(filename: string, content: string, mime: string) {
   URL.revokeObjectURL(url);
 }
 
+type BackupFile = {
+  version: 1;
+  exported_at: string;
+  tables: Record<string, Record<string, unknown>[]>;
+};
+
 function BackupPage() {
   const { isSuperAdmin } = useAuth();
-  const [busy, setBusy] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [progress, setProgress] = useState<{ done: number; total: number; current: string } | null>(null);
+  const [lastReport, setLastReport] = useState<Record<string, { inserted: number; error?: string }> | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  async function handleExport(t: TableId, fmt: "json" | "csv") {
-    setBusy(`${t}-${fmt}`);
+  async function handleBackupAll() {
+    setExporting(true);
+    setProgress({ done: 0, total: TABLES.length, current: TABLES[0] });
     try {
-      const res = await exportTable({ data: { tabel: t } });
-      const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-      if (fmt === "json") {
-        download(`${t}_${stamp}.json`, JSON.stringify(res.rows, null, 2), "application/json");
-      } else {
-        download(`${t}_${stamp}.csv`, toCSV(res.rows as Record<string, unknown>[]), "text/csv");
+      const tables: Record<string, Record<string, unknown>[]> = {};
+      let totalRows = 0;
+      for (let i = 0; i < TABLES.length; i++) {
+        const t = TABLES[i];
+        setProgress({ done: i, total: TABLES.length, current: t });
+        const res = await exportTable({ data: { tabel: t } });
+        tables[t] = res.rows as Record<string, unknown>[];
+        totalRows += res.rows.length;
       }
-      toast.success(`${t}: ${res.rows.length} baris diunduh`);
+      const payload: BackupFile = {
+        version: 1,
+        exported_at: new Date().toISOString(),
+        tables,
+      };
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+      download(`backup-lengkap_${stamp}.json`, JSON.stringify(payload, null, 2), "application/json");
+      toast.success(`Backup selesai: ${totalRows} baris dari ${TABLES.length} tabel`);
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
-      setBusy(null);
+      setExporting(false);
+      setProgress(null);
+    }
+  }
+
+  async function handleRestoreFile(file: File) {
+    setImporting(true);
+    setLastReport(null);
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text) as Partial<BackupFile>;
+      if (!parsed || typeof parsed !== "object" || !parsed.tables) {
+        throw new Error("Format file tidak valid (butuh field 'tables').");
+      }
+      // Hanya kirim tabel yang dikenali untuk menghindari error.
+      const filtered: Record<string, Record<string, unknown>[]> = {};
+      for (const t of TABLES) {
+        if (Array.isArray(parsed.tables[t])) filtered[t] = parsed.tables[t] as Record<string, unknown>[];
+      }
+      if (Object.keys(filtered).length === 0) throw new Error("Tidak ada tabel yang bisa direstore di dalam file.");
+
+      const res = await importBackup({ data: { tables: filtered } });
+      setLastReport(res.summary);
+      const errors = Object.values(res.summary).filter((s) => s.error).length;
+      if (errors > 0) toast.warning(`Restore selesai dengan ${errors} tabel bermasalah`);
+      else toast.success("Restore selesai untuk semua tabel");
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setImporting(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   }
 
@@ -91,56 +133,119 @@ function BackupPage() {
     );
   }
 
+  const busy = exporting || importing;
+
   return (
     <AdminShell breadcrumb={[{ label: "Backup Data" }]}>
       <h1 className="mb-1 font-display text-2xl font-bold">Backup &amp; Disaster Recovery</h1>
-      <p className="mb-4 text-sm text-muted-foreground">Unduh snapshot data sebagai JSON atau CSV. Disarankan dijadwalkan rutin.</p>
+      <p className="mb-4 text-sm text-muted-foreground">
+        Unduh seluruh data sebagai satu file JSON, atau unggah file backup untuk mengembalikan data ke tabel masing-masing.
+      </p>
 
       <div className="mb-6 flex gap-3 rounded-xl border border-gold/40 bg-gold/10 p-4 text-sm">
         <AlertTriangle className="h-5 w-5 shrink-0 text-gold-foreground" />
         <div>
           <div className="font-semibold text-foreground">Catatan</div>
           <p className="mt-1 text-muted-foreground">
-            Untuk perlindungan menyeluruh, aktifkan <strong>Point-in-Time Recovery</strong> di pengaturan database (perlu plan berbayar).
-            Export di sini berfungsi sebagai <em>safety net manual</em>.
+            Restore dilakukan dengan <strong>upsert berdasarkan ID</strong>: data yang sudah ada akan ditimpa, data baru akan ditambahkan.
+            Untuk perlindungan menyeluruh, aktifkan <strong>Point-in-Time Recovery</strong> di pengaturan database.
           </p>
         </div>
       </div>
 
-      <div className="grid gap-3">
-        {TABLES.map((t) => (
-          <div key={t.id} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4">
-            <div className="flex items-center gap-3">
-              <span className="grid h-9 w-9 place-items-center rounded-md bg-primary-soft text-primary">
-                <Database className="h-4 w-4" />
-              </span>
-              <div>
-                <div className="font-medium text-foreground">{t.label}</div>
-                <div className="font-mono text-xs text-muted-foreground">{t.id}</div>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleExport(t.id, "json")}
-                disabled={busy !== null}
-                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium hover:bg-muted disabled:opacity-50"
-              >
-                {busy === `${t.id}-json` ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
-                JSON
-              </button>
-              <button
-                onClick={() => handleExport(t.id, "csv")}
-                disabled={busy !== null}
-                className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground disabled:opacity-50"
-              >
-                {busy === `${t.id}-csv` ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
-                CSV
-              </button>
-            </div>
+      {/* BACKUP ALL */}
+      <div className="rounded-xl border border-border bg-card p-5">
+        <div className="flex items-start gap-4">
+          <span className="grid h-11 w-11 place-items-center rounded-lg bg-primary-soft text-primary">
+            <Database className="h-5 w-5" />
+          </span>
+          <div className="flex-1">
+            <h2 className="font-display text-lg font-semibold">Backup Seluruh Data</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Mengekspor {TABLES.length} tabel inti ke dalam satu file JSON yang bisa diunggah kembali kapan saja.
+            </p>
+            {progress && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                Memproses <span className="font-mono">{progress.current}</span> ({progress.done}/{progress.total})…
+              </p>
+            )}
           </div>
-        ))}
+          <button
+            onClick={handleBackupAll}
+            disabled={busy}
+            className="inline-flex shrink-0 items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+          >
+            {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+            {exporting ? "Mem-backup…" : "Backup Sekarang"}
+          </button>
+        </div>
       </div>
 
+      {/* UPLOAD RESTORE */}
+      <div className="mt-4 rounded-xl border border-border bg-card p-5">
+        <div className="flex items-start gap-4">
+          <span className="grid h-11 w-11 place-items-center rounded-lg bg-primary-soft text-primary">
+            <Upload className="h-5 w-5" />
+          </span>
+          <div className="flex-1">
+            <h2 className="font-display text-lg font-semibold">Upload Backup (Restore)</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Pilih file backup JSON. Data otomatis didistribusikan ke tabelnya masing-masing mengikuti urutan dependensi.
+            </p>
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/json,.json"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) void handleRestoreFile(f);
+            }}
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={busy}
+            className="inline-flex shrink-0 items-center gap-2 rounded-md border border-border bg-background px-4 py-2 text-sm font-semibold hover:bg-muted disabled:opacity-50"
+          >
+            {importing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+            {importing ? "Mengembalikan…" : "Pilih File Backup"}
+          </button>
+        </div>
+
+        {lastReport && (
+          <div className="mt-4 overflow-hidden rounded-md border border-border">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+                <tr>
+                  <th className="px-3 py-2 text-left">Tabel</th>
+                  <th className="px-3 py-2 text-right">Baris Diproses</th>
+                  <th className="px-3 py-2 text-left">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(lastReport).map(([tabel, info]) => (
+                  <tr key={tabel} className="border-t border-border">
+                    <td className="px-3 py-2 font-mono text-xs">{tabel}</td>
+                    <td className="px-3 py-2 text-right">{info.inserted}</td>
+                    <td className="px-3 py-2">
+                      {info.error ? (
+                        <span className="text-destructive">{info.error}</span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-emerald-600">
+                          <CheckCircle2 className="h-3.5 w-3.5" /> Sukses
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* MAINTENANCE */}
       <div className="mt-8 rounded-xl border border-border bg-card p-4">
         <h2 className="font-display text-base font-semibold">Pemeliharaan</h2>
         <p className="mt-1 text-sm text-muted-foreground">Jadwalkan job pembersihan latar belakang.</p>
