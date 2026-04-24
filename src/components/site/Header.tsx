@@ -196,7 +196,7 @@ export function Header() {
                 {!isSuperAdmin && isAdmin && <span className="mt-1 inline-block rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">ADMIN OPD</span>}
               </div>
             )}
-            {navItems.map((item) => (
+            {visibleNavItems.map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
