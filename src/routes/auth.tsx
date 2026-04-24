@@ -73,7 +73,7 @@ function AuthPage() {
           password: parsed.password,
           options: {
             emailRedirectTo: `${window.location.origin}/`,
-            data: { nama_lengkap: parsed.nama_lengkap, no_hp: parsed.no_hp },
+            data: { nama_lengkap: parsed.nama_lengkap, no_hp: parsed.no_hp, nik: parsed.nik },
           },
         });
         if (error) throw error;
