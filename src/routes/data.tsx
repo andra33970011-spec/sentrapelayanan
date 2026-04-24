@@ -129,7 +129,7 @@ function DataPage() {
 
       {!visiblePublic && isSuperAdmin && (
         <div className="container-page mt-6">
-          <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
+          <div className="rounded-lg border border-gold/40 bg-gold/15 p-3 text-xs text-gold-foreground">
             Menu Data Terpadu sedang <strong>disembunyikan</strong> dari publik & admin OPD. Anda melihat halaman ini sebagai super admin (preview).
           </div>
         </div>
