@@ -28,7 +28,14 @@ const signInSchema = z.object({
 });
 const signUpSchema = signInSchema.extend({
   nama_lengkap: z.string().trim().min(2, "Nama minimal 2 karakter").max(100),
-  no_hp: z.string().trim().max(20).optional().or(z.literal("")),
+  nik: z
+    .string()
+    .trim()
+    .regex(/^\d{16}$/, "NIK harus 16 digit angka"),
+  no_hp: z
+    .string()
+    .trim()
+    .regex(/^(\+62|62|0)8\d{7,12}$/, "Nomor HP tidak valid (contoh: 08xxxxxxxxxx)"),
 });
 
 function AuthPage() {
@@ -37,7 +44,7 @@ function AuthPage() {
   const { redirect } = Route.useSearch();
   const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [busy, setBusy] = useState(false);
-  const [form, setForm] = useState({ email: "", password: "", nama_lengkap: "", no_hp: "" });
+  const [form, setForm] = useState({ email: "", password: "", nama_lengkap: "", nik: "", no_hp: "" });
 
   const goAfterAuth = () => {
     if (redirect) window.location.assign(redirect);
@@ -66,7 +73,7 @@ function AuthPage() {
           password: parsed.password,
           options: {
             emailRedirectTo: `${window.location.origin}/`,
-            data: { nama_lengkap: parsed.nama_lengkap, no_hp: parsed.no_hp },
+            data: { nama_lengkap: parsed.nama_lengkap, no_hp: parsed.no_hp, nik: parsed.nik },
           },
         });
         if (error) throw error;
@@ -112,12 +119,26 @@ function AuthPage() {
                     className="input"
                   />
                 </Field>
-                <Field label="Nomor HP">
+                <Field label="NIK" required>
                   <input
+                    required
+                    inputMode="numeric"
+                    pattern="\d{16}"
+                    maxLength={16}
+                    value={form.nik}
+                    onChange={(e) => setForm({ ...form, nik: e.target.value.replace(/\D/g, "") })}
+                    className="input"
+                    placeholder="16 digit NIK"
+                  />
+                </Field>
+                <Field label="Nomor HP" required>
+                  <input
+                    required
+                    inputMode="tel"
                     value={form.no_hp}
                     onChange={(e) => setForm({ ...form, no_hp: e.target.value })}
                     className="input"
-                    placeholder="08xx…"
+                    placeholder="08xxxxxxxxxx"
                   />
                 </Field>
               </>
