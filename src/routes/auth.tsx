@@ -119,12 +119,26 @@ function AuthPage() {
                     className="input"
                   />
                 </Field>
-                <Field label="Nomor HP">
+                <Field label="NIK" required>
                   <input
+                    required
+                    inputMode="numeric"
+                    pattern="\d{16}"
+                    maxLength={16}
+                    value={form.nik}
+                    onChange={(e) => setForm({ ...form, nik: e.target.value.replace(/\D/g, "") })}
+                    className="input"
+                    placeholder="16 digit NIK"
+                  />
+                </Field>
+                <Field label="Nomor HP" required>
+                  <input
+                    required
+                    inputMode="tel"
                     value={form.no_hp}
                     onChange={(e) => setForm({ ...form, no_hp: e.target.value })}
                     className="input"
-                    placeholder="08xx…"
+                    placeholder="08xxxxxxxxxx"
                   />
                 </Field>
               </>
