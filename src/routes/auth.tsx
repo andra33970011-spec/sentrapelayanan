@@ -44,7 +44,7 @@ function AuthPage() {
   const { redirect } = Route.useSearch();
   const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [busy, setBusy] = useState(false);
-  const [form, setForm] = useState({ email: "", password: "", nama_lengkap: "", no_hp: "" });
+  const [form, setForm] = useState({ email: "", password: "", nama_lengkap: "", nik: "", no_hp: "" });
 
   const goAfterAuth = () => {
     if (redirect) window.location.assign(redirect);
