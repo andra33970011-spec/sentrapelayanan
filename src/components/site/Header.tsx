@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Menu, X, Search, LogOut, User as UserIcon, FileText, ShieldCheck, ChevronDown } from "lucide-react";
 import lambang from "@/assets/lambang.png";
 import { useAuth } from "@/lib/auth-context";
+import { supabase } from "@/integrations/supabase/client";
 
 const navItems = [
   { to: "/", label: "Beranda" },
