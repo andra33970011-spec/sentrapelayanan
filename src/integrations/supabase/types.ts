@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_setting: {
+        Row: {
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value?: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
       audit_log: {
         Row: {
           aksi: string
@@ -95,6 +113,66 @@ export type Database = {
           slug?: string
           status?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      data_terpadu_item: {
+        Row: {
+          aktif: boolean
+          created_at: string
+          format: string | null
+          id: string
+          ikon: string | null
+          kategori: string
+          label: string
+          nilai_num: number | null
+          nilai_num2: number | null
+          nilai_teks: string | null
+          opd: string | null
+          satuan: string | null
+          trend: string | null
+          ukuran: string | null
+          updated_at: string
+          url: string | null
+          urutan: number
+        }
+        Insert: {
+          aktif?: boolean
+          created_at?: string
+          format?: string | null
+          id?: string
+          ikon?: string | null
+          kategori: string
+          label: string
+          nilai_num?: number | null
+          nilai_num2?: number | null
+          nilai_teks?: string | null
+          opd?: string | null
+          satuan?: string | null
+          trend?: string | null
+          ukuran?: string | null
+          updated_at?: string
+          url?: string | null
+          urutan?: number
+        }
+        Update: {
+          aktif?: boolean
+          created_at?: string
+          format?: string | null
+          id?: string
+          ikon?: string | null
+          kategori?: string
+          label?: string
+          nilai_num?: number | null
+          nilai_num2?: number | null
+          nilai_teks?: string | null
+          opd?: string | null
+          satuan?: string | null
+          trend?: string | null
+          ukuran?: string | null
+          updated_at?: string
+          url?: string | null
+          urutan?: number
         }
         Relationships: []
       }

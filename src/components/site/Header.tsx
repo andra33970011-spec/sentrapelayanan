@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Menu, X, Search, LogOut, User as UserIcon, FileText, ShieldCheck, ChevronDown } from "lucide-react";
 import lambang from "@/assets/lambang.png";
 import { useAuth } from "@/lib/auth-context";
+import { supabase } from "@/integrations/supabase/client";
 
 const navItems = [
   { to: "/", label: "Beranda" },
@@ -18,6 +19,7 @@ export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, isAdmin, isSuperAdmin, signOut } = useAuth();
   const menuRef = useRef<HTMLDivElement>(null);
+  const [dataVisiblePublic, setDataVisiblePublic] = useState<boolean>(true);
 
   useEffect(() => {
     function onClick(e: MouseEvent) {
@@ -26,6 +28,24 @@ export function Header() {
     document.addEventListener("mousedown", onClick);
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
+
+  useEffect(() => {
+    supabase
+      .from("app_setting")
+      .select("value")
+      .eq("key", "data_terpadu_visible_public")
+      .maybeSingle()
+      .then(({ data }) => {
+        const v = data?.value;
+        setDataVisiblePublic(v === false || v === "false" ? false : true);
+      });
+  }, []);
+
+  // Sembunyikan menu Data Terpadu jika visibility OFF dan user bukan super admin
+  const visibleNavItems = navItems.filter((item) => {
+    if (item.to === "/data" && !dataVisiblePublic && !isSuperAdmin) return false;
+    return true;
+  });
 
   const displayName =
     (user?.user_metadata as { nama_lengkap?: string } | undefined)?.nama_lengkap ||
@@ -65,7 +85,7 @@ export function Header() {
         </Link>
 
         <nav className="hidden lg:flex items-center gap-1">
-          {navItems.map((item) => (
+          {visibleNavItems.map((item) => (
             <Link
               key={item.to}
               to={item.to}
@@ -176,7 +196,7 @@ export function Header() {
                 {!isSuperAdmin && isAdmin && <span className="mt-1 inline-block rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">ADMIN OPD</span>}
               </div>
             )}
-            {navItems.map((item) => (
+            {visibleNavItems.map((item) => (
               <Link
                 key={item.to}
                 to={item.to}

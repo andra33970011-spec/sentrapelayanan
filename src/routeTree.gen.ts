@@ -26,6 +26,7 @@ import { Route as HooksQueueWorkerRouteImport } from './routes/hooks.queue-worke
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminStorageRouteImport } from './routes/admin.storage'
 import { Route as AdminOpdRouteImport } from './routes/admin.opd'
+import { Route as AdminDataTerpaduRouteImport } from './routes/admin.data-terpadu'
 import { Route as AdminConfigRouteImport } from './routes/admin.config'
 import { Route as AdminCmsRouteImport } from './routes/admin.cms'
 import { Route as AdminBackupRouteImport } from './routes/admin.backup'
@@ -117,6 +118,11 @@ const AdminOpdRoute = AdminOpdRouteImport.update({
   path: '/admin/opd',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminDataTerpaduRoute = AdminDataTerpaduRouteImport.update({
+  id: '/admin/data-terpadu',
+  path: '/admin/data-terpadu',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminConfigRoute = AdminConfigRouteImport.update({
   id: '/admin/config',
   path: '/admin/config',
@@ -156,6 +162,7 @@ export interface FileRoutesByFullPath {
   '/admin/backup': typeof AdminBackupRoute
   '/admin/cms': typeof AdminCmsRoute
   '/admin/config': typeof AdminConfigRoute
+  '/admin/data-terpadu': typeof AdminDataTerpaduRoute
   '/admin/opd': typeof AdminOpdRoute
   '/admin/storage': typeof AdminStorageRoute
   '/admin/users': typeof AdminUsersRoute
@@ -180,6 +187,7 @@ export interface FileRoutesByTo {
   '/admin/backup': typeof AdminBackupRoute
   '/admin/cms': typeof AdminCmsRoute
   '/admin/config': typeof AdminConfigRoute
+  '/admin/data-terpadu': typeof AdminDataTerpaduRoute
   '/admin/opd': typeof AdminOpdRoute
   '/admin/storage': typeof AdminStorageRoute
   '/admin/users': typeof AdminUsersRoute
@@ -205,6 +213,7 @@ export interface FileRoutesById {
   '/admin/backup': typeof AdminBackupRoute
   '/admin/cms': typeof AdminCmsRoute
   '/admin/config': typeof AdminConfigRoute
+  '/admin/data-terpadu': typeof AdminDataTerpaduRoute
   '/admin/opd': typeof AdminOpdRoute
   '/admin/storage': typeof AdminStorageRoute
   '/admin/users': typeof AdminUsersRoute
@@ -231,6 +240,7 @@ export interface FileRouteTypes {
     | '/admin/backup'
     | '/admin/cms'
     | '/admin/config'
+    | '/admin/data-terpadu'
     | '/admin/opd'
     | '/admin/storage'
     | '/admin/users'
@@ -255,6 +265,7 @@ export interface FileRouteTypes {
     | '/admin/backup'
     | '/admin/cms'
     | '/admin/config'
+    | '/admin/data-terpadu'
     | '/admin/opd'
     | '/admin/storage'
     | '/admin/users'
@@ -279,6 +290,7 @@ export interface FileRouteTypes {
     | '/admin/backup'
     | '/admin/cms'
     | '/admin/config'
+    | '/admin/data-terpadu'
     | '/admin/opd'
     | '/admin/storage'
     | '/admin/users'
@@ -304,6 +316,7 @@ export interface RootRouteChildren {
   AdminBackupRoute: typeof AdminBackupRoute
   AdminCmsRoute: typeof AdminCmsRoute
   AdminConfigRoute: typeof AdminConfigRoute
+  AdminDataTerpaduRoute: typeof AdminDataTerpaduRoute
   AdminOpdRoute: typeof AdminOpdRoute
   AdminStorageRoute: typeof AdminStorageRoute
   AdminUsersRoute: typeof AdminUsersRoute
@@ -436,6 +449,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminOpdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/data-terpadu': {
+      id: '/admin/data-terpadu'
+      path: '/admin/data-terpadu'
+      fullPath: '/admin/data-terpadu'
+      preLoaderRoute: typeof AdminDataTerpaduRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/config': {
       id: '/admin/config'
       path: '/admin/config'
@@ -498,6 +518,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminBackupRoute: AdminBackupRoute,
   AdminCmsRoute: AdminCmsRoute,
   AdminConfigRoute: AdminConfigRoute,
+  AdminDataTerpaduRoute: AdminDataTerpaduRoute,
   AdminOpdRoute: AdminOpdRoute,
   AdminStorageRoute: AdminStorageRoute,
   AdminUsersRoute: AdminUsersRoute,
