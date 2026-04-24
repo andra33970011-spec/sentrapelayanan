@@ -28,7 +28,14 @@ const signInSchema = z.object({
 });
 const signUpSchema = signInSchema.extend({
   nama_lengkap: z.string().trim().min(2, "Nama minimal 2 karakter").max(100),
-  no_hp: z.string().trim().max(20).optional().or(z.literal("")),
+  nik: z
+    .string()
+    .trim()
+    .regex(/^\d{16}$/, "NIK harus 16 digit angka"),
+  no_hp: z
+    .string()
+    .trim()
+    .regex(/^(\+62|62|0)8\d{7,12}$/, "Nomor HP tidak valid (contoh: 08xxxxxxxxxx)"),
 });
 
 function AuthPage() {
