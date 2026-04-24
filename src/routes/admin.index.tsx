@@ -262,12 +262,13 @@ function AdminDashboard() {
 
       {isSuperAdmin && (
         <>
-          <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+          <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-7">
             {[
               { to: "/admin/users", label: "Manajemen User", icon: UsersIcon, tone: "bg-primary-soft text-primary" },
               { to: "/admin/opd", label: "OPD", icon: Building2, tone: "bg-accent/15 text-accent" },
               { to: "/admin/config", label: "Kategori & SLA", icon: Settings, tone: "bg-gold/20 text-gold-foreground" },
               { to: "/admin/cms", label: "CMS Konten", icon: Newspaper, tone: "bg-success/15 text-success" },
+              { to: "/admin/data-terpadu", label: "Data Terpadu", icon: BarChart3, tone: "bg-accent/15 text-accent" },
               { to: "/admin/storage", label: "Storage", icon: FolderOpen, tone: "bg-primary-soft text-primary" },
               { to: "/admin/backup", label: "Backup Data", icon: DbIcon, tone: "bg-destructive/15 text-destructive" },
             ].map((a) => (
