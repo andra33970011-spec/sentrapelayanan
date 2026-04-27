@@ -15,7 +15,7 @@ export function Footer() {
             </div>
           </div>
           <p className="mt-4 max-w-md text-sm text-muted-foreground">
-            Portal resmi pelayanan publik dan satu data Kabupaten Buton Selatan. Transparan, terpadu, dan dapat diakses kapan saja.
+            Situs resmi pemusatan pelayanan publik dan data terintegrasi Kabupaten Buton Selatan. Transparan, terpadu, dan dapat diakses kapan saja.
           </p>
         </div>
 
