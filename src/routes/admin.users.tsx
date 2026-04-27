@@ -118,6 +118,27 @@ function UsersPage() {
         </div>
       </div>
 
+      {loadError && (
+        <div className="mb-4 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm">
+          <div className="font-semibold text-destructive">Gagal memuat daftar user</div>
+          <div className="mt-1 text-destructive/90 break-words">{loadError}</div>
+          <div className="mt-2 text-xs text-muted-foreground">
+            Jika website ini di-hosting di Cloudflare Workers, pastikan environment variables berikut sudah diset di
+            <span className="font-medium"> Cloudflare Dashboard → Workers → Project → Settings → Variables and Secrets</span>:
+            <ul className="mt-1 list-disc pl-5">
+              <li><code>SUPABASE_URL</code></li>
+              <li><code>SUPABASE_PUBLISHABLE_KEY</code></li>
+              <li><code>SUPABASE_SERVICE_ROLE_KEY</code> (sebagai <em>Secret</em>)</li>
+              <li><code>VITE_SUPABASE_URL</code>, <code>VITE_SUPABASE_PUBLISHABLE_KEY</code>, <code>VITE_SUPABASE_PROJECT_ID</code></li>
+            </ul>
+            Setelah menambahkan, lakukan <em>redeploy</em> ulang.
+          </div>
+          <button onClick={() => load()} className="mt-3 inline-flex h-8 items-center rounded-md bg-destructive px-3 text-xs font-semibold text-destructive-foreground">
+            Coba lagi
+          </button>
+        </div>
+      )}
+
       <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-soft">
         <table className="w-full min-w-[1000px] text-sm">
           <thead className="bg-surface text-left text-xs uppercase tracking-wide text-muted-foreground">
