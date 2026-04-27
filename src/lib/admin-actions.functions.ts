@@ -138,8 +138,22 @@ export const listUsers = createServerFn({ method: "POST" })
     const rl = await checkRateLimit(userId, "list_users", 60, 60);
     if (!rl.ok) throw new Error("Too many requests");
 
+    // Diagnostic: pastikan service role key tersedia di runtime worker.
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY || !process.env.SUPABASE_URL) {
+      console.error("[listUsers] Missing env vars on server runtime", {
+        hasUrl: !!process.env.SUPABASE_URL,
+        hasServiceRole: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+      });
+      throw new Error(
+        "Server tidak terkonfigurasi: SUPABASE_URL atau SUPABASE_SERVICE_ROLE_KEY belum diset di environment hosting (Cloudflare Workers → Settings → Variables and Secrets).",
+      );
+    }
+
     const { data: list, error } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 });
-    if (error) throw new Error(error.message);
+    if (error) {
+      console.error("[listUsers] supabaseAdmin.auth.admin.listUsers error:", error);
+      throw new Error(`Gagal memanggil Supabase Admin API: ${error.message}`);
+    }
 
     const ids = list.users.map((u) => u.id);
     const [{ data: profiles }, { data: roles }] = await Promise.all([
