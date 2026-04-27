@@ -34,20 +34,33 @@ function UsersPage() {
   const [rows, setRows] = useState<Row[]>([]);
   const [opds, setOpds] = useState<Opd[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [actId, setActId] = useState<string | null>(null);
   const [q, setQ] = useState("");
 
   async function load() {
     setLoading(true);
+    setLoadError(null);
     try {
-      const [usersRes, opdRes] = await Promise.all([
-        listUsers().catch((e) => { toast.error((e as Error).message || "Gagal memuat user"); return { users: [] }; }),
-        supabase.from("opd").select("id,nama,singkatan").order("nama"),
-      ]);
-      setRows(((usersRes?.users ?? []) as Row[]));
+      const opdResPromise = supabase.from("opd").select("id,nama,singkatan").order("nama");
+      let usersRes: { users: Row[] } = { users: [] };
+      try {
+        usersRes = (await listUsers()) as { users: Row[] };
+      } catch (e) {
+        const msg = (e as Error).message || "Gagal memuat daftar user";
+        setLoadError(msg);
+        toast.error(msg);
+      }
+      const opdRes = await opdResPromise;
+      setRows((usersRes?.users ?? []) as Row[]);
       setOpds((opdRes?.data ?? []) as Opd[]);
-    } catch (e) { toast.error((e as Error).message); }
-    finally { setLoading(false); }
+    } catch (e) {
+      const msg = (e as Error).message;
+      setLoadError(msg);
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
   }
   useEffect(() => { if (isSuperAdmin) load(); }, [isSuperAdmin]);
 
