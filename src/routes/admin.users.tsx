@@ -34,20 +34,33 @@ function UsersPage() {
   const [rows, setRows] = useState<Row[]>([]);
   const [opds, setOpds] = useState<Opd[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [actId, setActId] = useState<string | null>(null);
   const [q, setQ] = useState("");
 
   async function load() {
     setLoading(true);
+    setLoadError(null);
     try {
-      const [usersRes, opdRes] = await Promise.all([
-        listUsers().catch((e) => { toast.error((e as Error).message || "Gagal memuat user"); return { users: [] }; }),
-        supabase.from("opd").select("id,nama,singkatan").order("nama"),
-      ]);
-      setRows(((usersRes?.users ?? []) as Row[]));
+      const opdResPromise = supabase.from("opd").select("id,nama,singkatan").order("nama");
+      let usersRes: { users: Row[] } = { users: [] };
+      try {
+        usersRes = (await listUsers()) as { users: Row[] };
+      } catch (e) {
+        const msg = (e as Error).message || "Gagal memuat daftar user";
+        setLoadError(msg);
+        toast.error(msg);
+      }
+      const opdRes = await opdResPromise;
+      setRows((usersRes?.users ?? []) as Row[]);
       setOpds((opdRes?.data ?? []) as Opd[]);
-    } catch (e) { toast.error((e as Error).message); }
-    finally { setLoading(false); }
+    } catch (e) {
+      const msg = (e as Error).message;
+      setLoadError(msg);
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
   }
   useEffect(() => { if (isSuperAdmin) load(); }, [isSuperAdmin]);
 
@@ -104,6 +117,27 @@ function UsersPage() {
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari nama / email / NIK…" className="h-9 w-72 rounded-md border border-border bg-background pl-8 pr-3 text-sm" />
         </div>
       </div>
+
+      {loadError && (
+        <div className="mb-4 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm">
+          <div className="font-semibold text-destructive">Gagal memuat daftar user</div>
+          <div className="mt-1 text-destructive/90 break-words">{loadError}</div>
+          <div className="mt-2 text-xs text-muted-foreground">
+            Jika website ini di-hosting di Cloudflare Workers, pastikan environment variables berikut sudah diset di
+            <span className="font-medium"> Cloudflare Dashboard → Workers → Project → Settings → Variables and Secrets</span>:
+            <ul className="mt-1 list-disc pl-5">
+              <li><code>SUPABASE_URL</code></li>
+              <li><code>SUPABASE_PUBLISHABLE_KEY</code></li>
+              <li><code>SUPABASE_SERVICE_ROLE_KEY</code> (sebagai <em>Secret</em>)</li>
+              <li><code>VITE_SUPABASE_URL</code>, <code>VITE_SUPABASE_PUBLISHABLE_KEY</code>, <code>VITE_SUPABASE_PROJECT_ID</code></li>
+            </ul>
+            Setelah menambahkan, lakukan <em>redeploy</em> ulang.
+          </div>
+          <button onClick={() => load()} className="mt-3 inline-flex h-8 items-center rounded-md bg-destructive px-3 text-xs font-semibold text-destructive-foreground">
+            Coba lagi
+          </button>
+        </div>
+      )}
 
       <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-soft">
         <table className="w-full min-w-[1000px] text-sm">
