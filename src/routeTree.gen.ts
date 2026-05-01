@@ -25,6 +25,7 @@ import { Route as InstansiSingkatanRouteImport } from './routes/instansi.$singka
 import { Route as HooksQueueWorkerRouteImport } from './routes/hooks.queue-worker'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminStorageRouteImport } from './routes/admin.storage'
+import { Route as AdminPejabatRouteImport } from './routes/admin.pejabat'
 import { Route as AdminOpdRouteImport } from './routes/admin.opd'
 import { Route as AdminDataTerpaduRouteImport } from './routes/admin.data-terpadu'
 import { Route as AdminConfigRouteImport } from './routes/admin.config'
@@ -113,6 +114,11 @@ const AdminStorageRoute = AdminStorageRouteImport.update({
   path: '/admin/storage',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminPejabatRoute = AdminPejabatRouteImport.update({
+  id: '/admin/pejabat',
+  path: '/admin/pejabat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminOpdRoute = AdminOpdRouteImport.update({
   id: '/admin/opd',
   path: '/admin/opd',
@@ -164,6 +170,7 @@ export interface FileRoutesByFullPath {
   '/admin/config': typeof AdminConfigRoute
   '/admin/data-terpadu': typeof AdminDataTerpaduRoute
   '/admin/opd': typeof AdminOpdRoute
+  '/admin/pejabat': typeof AdminPejabatRoute
   '/admin/storage': typeof AdminStorageRoute
   '/admin/users': typeof AdminUsersRoute
   '/hooks/queue-worker': typeof HooksQueueWorkerRoute
@@ -189,6 +196,7 @@ export interface FileRoutesByTo {
   '/admin/config': typeof AdminConfigRoute
   '/admin/data-terpadu': typeof AdminDataTerpaduRoute
   '/admin/opd': typeof AdminOpdRoute
+  '/admin/pejabat': typeof AdminPejabatRoute
   '/admin/storage': typeof AdminStorageRoute
   '/admin/users': typeof AdminUsersRoute
   '/hooks/queue-worker': typeof HooksQueueWorkerRoute
@@ -215,6 +223,7 @@ export interface FileRoutesById {
   '/admin/config': typeof AdminConfigRoute
   '/admin/data-terpadu': typeof AdminDataTerpaduRoute
   '/admin/opd': typeof AdminOpdRoute
+  '/admin/pejabat': typeof AdminPejabatRoute
   '/admin/storage': typeof AdminStorageRoute
   '/admin/users': typeof AdminUsersRoute
   '/hooks/queue-worker': typeof HooksQueueWorkerRoute
@@ -242,6 +251,7 @@ export interface FileRouteTypes {
     | '/admin/config'
     | '/admin/data-terpadu'
     | '/admin/opd'
+    | '/admin/pejabat'
     | '/admin/storage'
     | '/admin/users'
     | '/hooks/queue-worker'
@@ -267,6 +277,7 @@ export interface FileRouteTypes {
     | '/admin/config'
     | '/admin/data-terpadu'
     | '/admin/opd'
+    | '/admin/pejabat'
     | '/admin/storage'
     | '/admin/users'
     | '/hooks/queue-worker'
@@ -292,6 +303,7 @@ export interface FileRouteTypes {
     | '/admin/config'
     | '/admin/data-terpadu'
     | '/admin/opd'
+    | '/admin/pejabat'
     | '/admin/storage'
     | '/admin/users'
     | '/hooks/queue-worker'
@@ -318,6 +330,7 @@ export interface RootRouteChildren {
   AdminConfigRoute: typeof AdminConfigRoute
   AdminDataTerpaduRoute: typeof AdminDataTerpaduRoute
   AdminOpdRoute: typeof AdminOpdRoute
+  AdminPejabatRoute: typeof AdminPejabatRoute
   AdminStorageRoute: typeof AdminStorageRoute
   AdminUsersRoute: typeof AdminUsersRoute
   HooksQueueWorkerRoute: typeof HooksQueueWorkerRoute
@@ -442,6 +455,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminStorageRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/pejabat': {
+      id: '/admin/pejabat'
+      path: '/admin/pejabat'
+      fullPath: '/admin/pejabat'
+      preLoaderRoute: typeof AdminPejabatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/opd': {
       id: '/admin/opd'
       path: '/admin/opd'
@@ -520,6 +540,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminConfigRoute: AdminConfigRoute,
   AdminDataTerpaduRoute: AdminDataTerpaduRoute,
   AdminOpdRoute: AdminOpdRoute,
+  AdminPejabatRoute: AdminPejabatRoute,
   AdminStorageRoute: AdminStorageRoute,
   AdminUsersRoute: AdminUsersRoute,
   HooksQueueWorkerRoute: HooksQueueWorkerRoute,

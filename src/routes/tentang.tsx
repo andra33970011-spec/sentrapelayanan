@@ -1,6 +1,11 @@
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell, PageHero } from "@/components/site/PageShell";
 import { Target, Eye, Award, Users } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+
+type Pejabat = { id: string; nama: string; jabatan: string; foto_url: string | null };
+
 
 export const Route = createFileRoute("/tentang")({
   head: () => ({
@@ -15,6 +20,15 @@ export const Route = createFileRoute("/tentang")({
 });
 
 function TentangPage() {
+  const [pejabat, setPejabat] = useState<Pejabat[]>([]);
+  useEffect(() => {
+    supabase.from("pejabat")
+      .select("id,nama,jabatan,foto_url")
+      .eq("aktif", true)
+      .order("urutan")
+      .then(({ data }) => setPejabat((data ?? []) as Pejabat[]));
+  }, []);
+
   return (
     <PageShell>
       <PageHero
