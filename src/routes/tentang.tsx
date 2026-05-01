@@ -28,7 +28,7 @@ function TentangPage() {
           <div className="rounded-2xl border border-border bg-card p-8 shadow-soft">
             <div className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-primary-soft text-primary"><Eye className="h-5 w-5" /></div>
             <h3 className="mt-5 text-xl font-semibold">Visi</h3>
-            <p className="mt-3 text-muted-foreground">
+            <p className="mt-3 text-muted-foreground text-justify">
               Mewujudkan Kabupaten Buton Selatan sebagai kota cerdas, inklusif, dan berkelanjutan melalui pemerintahan yang melayani dan berbasis data.
             </p>
           </div>
