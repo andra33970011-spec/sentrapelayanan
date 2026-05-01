@@ -334,6 +334,39 @@ export type Database = {
         }
         Relationships: []
       }
+      pejabat: {
+        Row: {
+          aktif: boolean
+          created_at: string
+          foto_url: string | null
+          id: string
+          jabatan: string
+          nama: string
+          updated_at: string
+          urutan: number
+        }
+        Insert: {
+          aktif?: boolean
+          created_at?: string
+          foto_url?: string | null
+          id?: string
+          jabatan: string
+          nama: string
+          updated_at?: string
+          urutan?: number
+        }
+        Update: {
+          aktif?: boolean
+          created_at?: string
+          foto_url?: string | null
+          id?: string
+          jabatan?: string
+          nama?: string
+          updated_at?: string
+          urutan?: number
+        }
+        Relationships: []
+      }
       permohonan: {
         Row: {
           deskripsi: string | null
