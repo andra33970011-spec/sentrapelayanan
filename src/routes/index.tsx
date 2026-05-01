@@ -88,12 +88,7 @@ function HomePage() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent" aria-hidden />
         <div className="container-page relative grid gap-10 py-16 md:py-24 lg:grid-cols-12 lg:gap-12">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="lg:col-span-7"
-          >
+          <motion.div initial={false} className="lg:col-span-7">
             <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-medium uppercase tracking-wider backdrop-blur">
               <ShieldCheck className="h-3.5 w-3.5" /> Portal Resmi Pemerintah
             </span>
@@ -128,12 +123,7 @@ function HomePage() {
             </form>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.15 }}
-            className="lg:col-span-5"
-          >
+          <motion.div initial={false} className="lg:col-span-5">
             <div className="grid grid-cols-2 gap-3 rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur">
               {stats.map((s) => (
                 <div key={s.label} className="rounded-xl bg-white/10 p-4">
