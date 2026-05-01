@@ -61,21 +61,27 @@ function TentangPage() {
         <div className="mt-10 rounded-3xl bg-surface p-10">
           <h2 className="text-2xl font-bold">Struktur Pemerintahan</h2>
           <p className="mt-2 text-muted-foreground">Kabupaten Buton Selatan dipimpin oleh Bupati dan Wakil Bupati dengan dukungan 42 Organisasi Perangkat Daerah (OPD).</p>
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {[
-              { nama: "Adios", jabatan: "Bupati" },
-              { nama: "La Ode Risawal", jabatan: "Wakil Bupati" },
-              { nama: "Ir. Hendra Kurnia", jabatan: "Sekretaris Daerah" },
-            ].map((p) => (
-              <div key={p.nama} className="rounded-2xl border border-border bg-card p-6 text-center shadow-soft">
-                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-primary text-2xl font-bold text-primary-foreground">
-                  {p.nama.split(" ").map(s=>s[0]).slice(0,2).join("")}
+          {pejabat.length > 0 && (
+            <div className="mt-8 grid gap-4 md:grid-cols-3">
+              {pejabat.map((p) => (
+                <div key={p.id} className="rounded-2xl border border-border bg-card p-6 text-center shadow-soft">
+                  {p.foto_url ? (
+                    <img
+                      src={p.foto_url}
+                      alt={`Foto ${p.nama}`}
+                      className="mx-auto h-24 w-24 rounded-full object-cover ring-2 ring-border"
+                    />
+                  ) : (
+                    <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-gradient-primary text-2xl font-bold text-primary-foreground">
+                      {p.nama.split(" ").map(s => s[0]).slice(0, 2).join("")}
+                    </div>
+                  )}
+                  <div className="mt-4 font-semibold">{p.nama}</div>
+                  <div className="text-sm text-muted-foreground">{p.jabatan}</div>
                 </div>
-                <div className="mt-4 font-semibold">{p.nama}</div>
-                <div className="text-sm text-muted-foreground">{p.jabatan}</div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="mt-10 grid gap-6 md:grid-cols-2">
