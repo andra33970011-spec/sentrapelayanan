@@ -28,7 +28,7 @@ function TentangPage() {
           <div className="rounded-2xl border border-border bg-card p-8 shadow-soft">
             <div className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-primary-soft text-primary"><Eye className="h-5 w-5" /></div>
             <h3 className="mt-5 text-xl font-semibold">Visi</h3>
-            <p className="mt-3 text-muted-foreground">
+            <p className="mt-3 text-muted-foreground text-justify">
               Mewujudkan Kabupaten Buton Selatan sebagai kota cerdas, inklusif, dan berkelanjutan melalui pemerintahan yang melayani dan berbasis data.
             </p>
           </div>
@@ -46,7 +46,7 @@ function TentangPage() {
 
         <div className="mt-10 rounded-3xl bg-surface p-10">
           <h2 className="text-2xl font-bold">Struktur Pemerintahan</h2>
-          <p className="mt-2 text-muted-foreground">Kabupaten Buton Selatan dipimpin oleh Bupati dan Wakil Bupati dengan dukungan 28 Organisasi Perangkat Daerah (OPD).</p>
+          <p className="mt-2 text-muted-foreground">Kabupaten Buton Selatan dipimpin oleh Bupati dan Wakil Bupati dengan dukungan 42 Organisasi Perangkat Daerah (OPD).</p>
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             {[
               { nama: "Adios", jabatan: "Bupati" },
@@ -78,7 +78,7 @@ function TentangPage() {
           <div className="rounded-2xl border border-border bg-card p-8 shadow-soft">
             <div className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-primary-soft text-primary"><Users className="h-5 w-5" /></div>
             <h3 className="mt-5 text-xl font-semibold">Aparatur</h3>
-            <p className="mt-3 text-muted-foreground">12.480 ASN melayani warga di 28 OPD, 12 kecamatan, dan 78 kelurahan, didukung sistem manajemen kinerja berbasis digital.</p>
+            <p className="mt-3 text-muted-foreground text-justify">5.257 ASN melayani warga di 42 Organisasi Perangkat Daerah (OPD) di Kabupaten Buton Selatan yang mencakup berbagai dinas, badan, dan kantor yang tersebar di lingkungan pemerintah daerah, 7 kecamatan, dan 70 desa/kelurahan, didukung sistem manajemen kinerja berbasis digital.</p>
           </div>
         </div>
       </section>
