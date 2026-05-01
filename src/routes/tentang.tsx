@@ -78,7 +78,7 @@ function TentangPage() {
           <div className="rounded-2xl border border-border bg-card p-8 shadow-soft">
             <div className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-primary-soft text-primary"><Users className="h-5 w-5" /></div>
             <h3 className="mt-5 text-xl font-semibold">Aparatur</h3>
-            <p className="mt-3 text-muted-foreground">12.480 ASN melayani warga di 28 OPD, 12 kecamatan, dan 78 kelurahan, didukung sistem manajemen kinerja berbasis digital.</p>
+            <p className="mt-3 text-muted-foreground text-justify">5.257 ASN melayani warga di 42 Organisasi Perangkat Daerah (OPD) di Kabupaten Buton Selatan yang mencakup berbagai dinas, badan, dan kantor yang tersebar di lingkungan pemerintah daerah, 7 kecamatan, dan 70 desa/kelurahan, didukung sistem manajemen kinerja berbasis digital.</p>
           </div>
         </div>
       </section>
