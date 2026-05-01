@@ -570,3 +570,56 @@ export const importBackup = createServerFn({ method: "POST" })
 
     return { ok: true, summary };
   });
+
+// ============= PEJABAT (STRUKTUR PEMERINTAHAN) CRUD =============
+const pejabatSchema = z.object({
+  id: z.string().uuid().optional(),
+  nama: z.string().min(2).max(120),
+  jabatan: z.string().min(2).max(80),
+  foto_url: z.string().url().max(1000).optional().nullable(),
+  urutan: z.number().int().min(0).max(9999).default(0),
+  aktif: z.boolean().default(true),
+});
+
+export const upsertPejabat = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => pejabatSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    await assertSuperAdmin(context.userId);
+    const rl = await checkRateLimit(context.userId, "pejabat_write", 30, 60);
+    if (!rl.ok) throw new Error("Too many requests");
+    const payload = {
+      nama: data.nama,
+      jabatan: data.jabatan,
+      foto_url: data.foto_url ?? null,
+      urutan: data.urutan,
+      aktif: data.aktif,
+    };
+    if (data.id) {
+      const { error } = await supabaseAdmin.from("pejabat").update(payload).eq("id", data.id);
+      if (error) throw new Error(error.message);
+      await supabaseAdmin.from("audit_log").insert({
+        user_id: context.userId, aksi: "pejabat.updated", entitas: "pejabat", entitas_id: data.id, data_sesudah: payload as never,
+      });
+      return { ok: true, id: data.id };
+    }
+    const { data: row, error } = await supabaseAdmin.from("pejabat").insert(payload).select("id").single();
+    if (error) throw new Error(error.message);
+    await supabaseAdmin.from("audit_log").insert({
+      user_id: context.userId, aksi: "pejabat.created", entitas: "pejabat", entitas_id: row.id, data_sesudah: payload as never,
+    });
+    return { ok: true, id: row.id };
+  });
+
+export const deletePejabat = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    await assertSuperAdmin(context.userId);
+    const { error } = await supabaseAdmin.from("pejabat").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    await supabaseAdmin.from("audit_log").insert({
+      user_id: context.userId, aksi: "pejabat.deleted", entitas: "pejabat", entitas_id: data.id,
+    });
+    return { ok: true };
+  });
