@@ -60,6 +60,7 @@ function BaruPage() {
   const [busy, setBusy] = useState(false);
   const [prefilling, setPrefilling] = useState<boolean>(!!layananSlug);
   const [kategoriLain, setKategoriLain] = useState("");
+  const [slaHari, setSlaHari] = useState<number>(14);
 
   useEffect(() => {
     if (!loading && !user) {
