@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { PageShell } from "@/components/site/PageShell";
-import { ArrowLeft, ChevronRight, Building2, FileCheck2, Loader2, Info } from "lucide-react";
+import { ArrowLeft, ChevronRight, Building2, FileCheck2, Loader2, Info, Clock, ListOrdered } from "lucide-react";
 import { layananBySlugQueryOptions, opdByIdQueryOptions } from "@/lib/queries";
 import { parsePersyaratan } from "@/lib/parse-persyaratan";
 
