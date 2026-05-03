@@ -145,7 +145,7 @@ function BaruPage() {
         kategoriFinal = `Lainnya: ${detail}`;
       }
       const kode = generateKodePermohonan();
-      const tenggat = new Date(Date.now() + 14 * 86400_000).toISOString();
+      const tenggat = new Date(Date.now() + slaHari * 86400_000).toISOString();
 
       const { data: row, error } = await supabase
         .from("permohonan")
