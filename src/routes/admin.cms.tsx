@@ -199,18 +199,20 @@ function LayananTab() {
             <tr>
               <th className="px-4 py-3 font-medium">Judul</th>
               <th className="px-4 py-3 font-medium">OPD</th>
+              <th className="px-4 py-3 font-medium">SLA</th>
               <th className="px-4 py-3 font-medium">Urutan</th>
               <th className="px-4 py-3 font-medium">Status</th>
               <th className="px-4 py-3" />
             </tr>
           </thead>
           <tbody>
-            {loading && <tr><td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">Memuat…</td></tr>}
-            {!loading && rows.length === 0 && <tr><td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">Belum ada layanan.</td></tr>}
+            {loading && <tr><td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">Memuat…</td></tr>}
+            {!loading && rows.length === 0 && <tr><td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">Belum ada layanan.</td></tr>}
             {rows.map((l) => (
               <tr key={l.id} className="border-t border-border">
                 <td className="px-4 py-3 font-medium">{l.judul}</td>
                 <td className="px-4 py-3 text-muted-foreground">{opds.find((o) => o.id === l.opd_id)?.singkatan ?? "—"}</td>
+                <td className="px-4 py-3 text-muted-foreground">{l.sla_hari} hari</td>
                 <td className="px-4 py-3 font-mono">{l.urutan}</td>
                 <td className="px-4 py-3"><span className={`rounded-full px-2 py-0.5 text-xs ${l.aktif ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"}`}>{l.aktif ? "Aktif" : "Nonaktif"}</span></td>
                 <td className="px-4 py-3 text-right">
