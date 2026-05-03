@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { PageShell } from "@/components/site/PageShell";
-import { ArrowLeft, ChevronRight, Building2, FileCheck2, Loader2, Info } from "lucide-react";
+import { ArrowLeft, ChevronRight, Building2, FileCheck2, Loader2, Info, Clock, ListOrdered } from "lucide-react";
 import { layananBySlugQueryOptions, opdByIdQueryOptions } from "@/lib/queries";
 import { parsePersyaratan } from "@/lib/parse-persyaratan";
 
@@ -77,9 +77,17 @@ function LayananDetailPage() {
 
       {item && (() => {
         const berkas = parsePersyaratan(item.persyaratan);
+        const langkah = parsePersyaratan(item.alur);
         return (
           <section className="container-page grid gap-6 py-12 lg:grid-cols-[1fr_320px]">
             <div className="space-y-6">
+              {item.deskripsi && (
+                <article className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+                  <h2 className="font-display text-lg font-bold">Tentang Layanan</h2>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground text-justify">{item.deskripsi}</p>
+                </article>
+              )}
+
               <article className="rounded-2xl border border-border bg-card p-6 shadow-soft">
                 <h2 className="flex items-center gap-2 font-display text-lg font-bold">
                   <FileCheck2 className="h-5 w-5 text-primary" /> Persyaratan Berkas
@@ -117,9 +125,35 @@ function LayananDetailPage() {
                   <span className="font-medium"> 5 MB</span> per berkas, hingga 5 berkas.
                 </div>
               </article>
+
+              {langkah.length > 0 && (
+                <article className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+                  <h2 className="flex items-center gap-2 font-display text-lg font-bold">
+                    <ListOrdered className="h-5 w-5 text-primary" /> Alur Layanan
+                  </h2>
+                  <ol className="mt-4 space-y-3">
+                    {langkah.map((s, i) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">{i + 1}</span>
+                        <span className="pt-1 text-sm leading-snug">{s}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </article>
+              )}
             </div>
 
           <aside className="space-y-4 lg:sticky lg:top-24 lg:h-fit">
+            <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+              <h3 className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                <Clock className="h-4 w-4 text-primary" /> Tenggat Penyelesaian (SLA)
+              </h3>
+              <p className="mt-2 font-display text-2xl font-bold text-primary">{item.sla_hari} hari kerja</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Tenggat dihitung otomatis sejak permohonan diverifikasi lengkap.
+              </p>
+            </div>
+
             <div className="rounded-2xl border border-border bg-gradient-to-br from-primary to-primary/80 p-6 text-primary-foreground shadow-elevated">
               <h3 className="font-display text-lg font-bold">Siap mengajukan?</h3>
               <p className="mt-2 text-sm text-primary-foreground/85">

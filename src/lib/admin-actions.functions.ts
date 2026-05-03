@@ -408,6 +408,7 @@ const layananSchema = z.object({
   alur: z.string().max(5000).optional().nullable(),
   aktif: z.boolean().default(true),
   urutan: z.number().int().min(0).max(9999).default(0),
+  sla_hari: z.number().int().min(1).max(365).default(14),
 });
 
 export const upsertLayanan = createServerFn({ method: "POST" })
@@ -427,6 +428,7 @@ export const upsertLayanan = createServerFn({ method: "POST" })
       alur: data.alur ?? null,
       aktif: data.aktif,
       urutan: data.urutan,
+      sla_hari: data.sla_hari,
     };
     if (data.id) {
       const { error } = await supabaseAdmin.from("layanan_publik").update(payload).eq("id", data.id);

@@ -73,6 +73,7 @@ export type LayananDetail = {
   persyaratan: string | null;
   alur: string | null;
   opd_id: string | null;
+  sla_hari: number;
 };
 
 const FIVE_MIN = 5 * 60_000;
@@ -168,7 +169,7 @@ export const layananBySlugQueryOptions = (slug: string) =>
     queryFn: async (): Promise<LayananDetail | null> => {
       const { data, error } = await supabase
         .from("layanan_publik")
-        .select("id,judul,slug,deskripsi,persyaratan,alur,opd_id")
+        .select("id,judul,slug,deskripsi,persyaratan,alur,opd_id,sla_hari")
         .eq("slug", slug)
         .eq("aktif", true)
         .maybeSingle();

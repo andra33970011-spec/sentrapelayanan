@@ -23,7 +23,7 @@ export const Route = createFileRoute("/admin/cms")({
 });
 
 type Berita = { id: string; judul: string; ringkasan: string | null; isi: string; gambar_url: string | null; status: "draft" | "terbit"; published_at: string | null };
-type Layanan = { id: string; judul: string; deskripsi: string | null; ikon: string | null; opd_id: string | null; persyaratan: string | null; alur: string | null; aktif: boolean; urutan: number };
+type Layanan = { id: string; judul: string; deskripsi: string | null; ikon: string | null; opd_id: string | null; persyaratan: string | null; alur: string | null; aktif: boolean; urutan: number; sla_hari: number };
 type Opd = { id: string; nama: string; singkatan: string };
 
 function CmsPage() {
@@ -171,6 +171,7 @@ function LayananTab() {
         opd_id: editing.opd_id ?? null, persyaratan: editing.persyaratan ?? null,
         alur: editing.alur ?? null, aktif: editing.aktif ?? true,
         urutan: editing.urutan ?? 0,
+        sla_hari: editing.sla_hari ?? 14,
       }});
       await invalidateLayanan(qc);
       toast.success("Tersimpan"); setEditing(null); load();
@@ -198,18 +199,20 @@ function LayananTab() {
             <tr>
               <th className="px-4 py-3 font-medium">Judul</th>
               <th className="px-4 py-3 font-medium">OPD</th>
+              <th className="px-4 py-3 font-medium">SLA</th>
               <th className="px-4 py-3 font-medium">Urutan</th>
               <th className="px-4 py-3 font-medium">Status</th>
               <th className="px-4 py-3" />
             </tr>
           </thead>
           <tbody>
-            {loading && <tr><td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">Memuat…</td></tr>}
-            {!loading && rows.length === 0 && <tr><td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">Belum ada layanan.</td></tr>}
+            {loading && <tr><td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">Memuat…</td></tr>}
+            {!loading && rows.length === 0 && <tr><td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">Belum ada layanan.</td></tr>}
             {rows.map((l) => (
               <tr key={l.id} className="border-t border-border">
                 <td className="px-4 py-3 font-medium">{l.judul}</td>
                 <td className="px-4 py-3 text-muted-foreground">{opds.find((o) => o.id === l.opd_id)?.singkatan ?? "—"}</td>
+                <td className="px-4 py-3 text-muted-foreground">{l.sla_hari} hari</td>
                 <td className="px-4 py-3 font-mono">{l.urutan}</td>
                 <td className="px-4 py-3"><span className={`rounded-full px-2 py-0.5 text-xs ${l.aktif ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"}`}>{l.aktif ? "Aktif" : "Nonaktif"}</span></td>
                 <td className="px-4 py-3 text-right">
@@ -238,6 +241,11 @@ function LayananTab() {
               <label className="text-xs font-medium text-muted-foreground">Urutan tampil</label>
               <input type="number" value={editing.urutan ?? 0} onChange={(e) => setEditing({ ...editing, urutan: Number(e.target.value) })} className="mt-1 h-9 w-full rounded-md border border-border bg-background px-3 text-sm" />
             </div>
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">SLA / Tenggat penyelesaian (hari kerja)</label>
+            <input type="number" min={1} max={365} value={editing.sla_hari ?? 14} onChange={(e) => setEditing({ ...editing, sla_hari: Number(e.target.value) })} className="mt-1 h-9 w-full rounded-md border border-border bg-background px-3 text-sm" />
+            <p className="mt-1 text-[11px] text-muted-foreground">Tenggat permohonan akan dihitung otomatis sebesar nilai ini sejak diajukan.</p>
           </div>
           <Input label="Ikon (nama lucide opsional, mis. IdCard)" value={editing.ikon ?? ""} onChange={(v) => setEditing({ ...editing, ikon: v })} />
           <TextArea label="Persyaratan" rows={4} value={editing.persyaratan ?? ""} onChange={(v) => setEditing({ ...editing, persyaratan: v })} />

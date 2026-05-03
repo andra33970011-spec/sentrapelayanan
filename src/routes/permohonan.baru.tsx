@@ -60,6 +60,7 @@ function BaruPage() {
   const [busy, setBusy] = useState(false);
   const [prefilling, setPrefilling] = useState<boolean>(!!layananSlug);
   const [kategoriLain, setKategoriLain] = useState("");
+  const [slaHari, setSlaHari] = useState<number>(14);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -84,7 +85,7 @@ function BaruPage() {
       setPrefilling(true);
       const { data } = await supabase
         .from("layanan_publik")
-        .select("judul,opd_id")
+        .select("judul,opd_id,sla_hari")
         .eq("slug", layananSlug)
         .eq("aktif", true)
         .maybeSingle();
@@ -95,6 +96,7 @@ function BaruPage() {
           opd_id: data.opd_id ?? prev.opd_id,
           judul: prev.judul || `Permohonan ${data.judul}`,
         }));
+        if (typeof data.sla_hari === "number") setSlaHari(data.sla_hari);
       }
       setPrefilling(false);
     })();
@@ -143,7 +145,7 @@ function BaruPage() {
         kategoriFinal = `Lainnya: ${detail}`;
       }
       const kode = generateKodePermohonan();
-      const tenggat = new Date(Date.now() + 14 * 86400_000).toISOString();
+      const tenggat = new Date(Date.now() + slaHari * 86400_000).toISOString();
 
       const { data: row, error } = await supabase
         .from("permohonan")
