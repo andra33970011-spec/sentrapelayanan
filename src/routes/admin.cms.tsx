@@ -240,6 +240,11 @@ function LayananTab() {
               <input type="number" value={editing.urutan ?? 0} onChange={(e) => setEditing({ ...editing, urutan: Number(e.target.value) })} className="mt-1 h-9 w-full rounded-md border border-border bg-background px-3 text-sm" />
             </div>
           </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">SLA / Tenggat penyelesaian (hari kerja)</label>
+            <input type="number" min={1} max={365} value={editing.sla_hari ?? 14} onChange={(e) => setEditing({ ...editing, sla_hari: Number(e.target.value) })} className="mt-1 h-9 w-full rounded-md border border-border bg-background px-3 text-sm" />
+            <p className="mt-1 text-[11px] text-muted-foreground">Tenggat permohonan akan dihitung otomatis sebesar nilai ini sejak diajukan.</p>
+          </div>
           <Input label="Ikon (nama lucide opsional, mis. IdCard)" value={editing.ikon ?? ""} onChange={(v) => setEditing({ ...editing, ikon: v })} />
           <TextArea label="Persyaratan" rows={4} value={editing.persyaratan ?? ""} onChange={(v) => setEditing({ ...editing, persyaratan: v })} />
           <TextArea label="Alur layanan" rows={4} value={editing.alur ?? ""} onChange={(v) => setEditing({ ...editing, alur: v })} />
