@@ -268,6 +268,7 @@ export type Database = {
           judul: string
           opd_id: string | null
           persyaratan: string | null
+          sla_hari: number
           slug: string
           updated_at: string
           urutan: number
@@ -282,6 +283,7 @@ export type Database = {
           judul: string
           opd_id?: string | null
           persyaratan?: string | null
+          sla_hari?: number
           slug: string
           updated_at?: string
           urutan?: number
@@ -296,6 +298,7 @@ export type Database = {
           judul?: string
           opd_id?: string | null
           persyaratan?: string | null
+          sla_hari?: number
           slug?: string
           updated_at?: string
           urutan?: number
