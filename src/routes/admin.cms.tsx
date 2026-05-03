@@ -23,7 +23,7 @@ export const Route = createFileRoute("/admin/cms")({
 });
 
 type Berita = { id: string; judul: string; ringkasan: string | null; isi: string; gambar_url: string | null; status: "draft" | "terbit"; published_at: string | null };
-type Layanan = { id: string; judul: string; deskripsi: string | null; ikon: string | null; opd_id: string | null; persyaratan: string | null; alur: string | null; aktif: boolean; urutan: number };
+type Layanan = { id: string; judul: string; deskripsi: string | null; ikon: string | null; opd_id: string | null; persyaratan: string | null; alur: string | null; aktif: boolean; urutan: number; sla_hari: number };
 type Opd = { id: string; nama: string; singkatan: string };
 
 function CmsPage() {
@@ -171,6 +171,7 @@ function LayananTab() {
         opd_id: editing.opd_id ?? null, persyaratan: editing.persyaratan ?? null,
         alur: editing.alur ?? null, aktif: editing.aktif ?? true,
         urutan: editing.urutan ?? 0,
+        sla_hari: editing.sla_hari ?? 14,
       }});
       await invalidateLayanan(qc);
       toast.success("Tersimpan"); setEditing(null); load();
