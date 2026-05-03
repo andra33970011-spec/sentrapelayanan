@@ -125,6 +125,22 @@ function LayananDetailPage() {
                   <span className="font-medium"> 5 MB</span> per berkas, hingga 5 berkas.
                 </div>
               </article>
+
+              {langkah.length > 0 && (
+                <article className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+                  <h2 className="flex items-center gap-2 font-display text-lg font-bold">
+                    <ListOrdered className="h-5 w-5 text-primary" /> Alur Layanan
+                  </h2>
+                  <ol className="mt-4 space-y-3">
+                    {langkah.map((s, i) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">{i + 1}</span>
+                        <span className="pt-1 text-sm leading-snug">{s}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </article>
+              )}
             </div>
 
           <aside className="space-y-4 lg:sticky lg:top-24 lg:h-fit">
