@@ -77,9 +77,17 @@ function LayananDetailPage() {
 
       {item && (() => {
         const berkas = parsePersyaratan(item.persyaratan);
+        const langkah = parsePersyaratan(item.alur);
         return (
           <section className="container-page grid gap-6 py-12 lg:grid-cols-[1fr_320px]">
             <div className="space-y-6">
+              {item.deskripsi && (
+                <article className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+                  <h2 className="font-display text-lg font-bold">Tentang Layanan</h2>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground text-justify">{item.deskripsi}</p>
+                </article>
+              )}
+
               <article className="rounded-2xl border border-border bg-card p-6 shadow-soft">
                 <h2 className="flex items-center gap-2 font-display text-lg font-bold">
                   <FileCheck2 className="h-5 w-5 text-primary" /> Persyaratan Berkas
