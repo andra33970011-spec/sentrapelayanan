@@ -144,6 +144,16 @@ function LayananDetailPage() {
             </div>
 
           <aside className="space-y-4 lg:sticky lg:top-24 lg:h-fit">
+            <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+              <h3 className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                <Clock className="h-4 w-4 text-primary" /> Tenggat Penyelesaian (SLA)
+              </h3>
+              <p className="mt-2 font-display text-2xl font-bold text-primary">{item.sla_hari} hari kerja</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Tenggat dihitung otomatis sejak permohonan diverifikasi lengkap.
+              </p>
+            </div>
+
             <div className="rounded-2xl border border-border bg-gradient-to-br from-primary to-primary/80 p-6 text-primary-foreground shadow-elevated">
               <h3 className="font-display text-lg font-bold">Siap mengajukan?</h3>
               <p className="mt-2 text-sm text-primary-foreground/85">
