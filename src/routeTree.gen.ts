@@ -13,6 +13,7 @@ import { Route as TentangRouteImport } from './routes/tentang'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as LayananRouteImport } from './routes/layanan'
 import { Route as KontakRouteImport } from './routes/kontak'
+import { Route as KinerjaRouteImport } from './routes/kinerja'
 import { Route as DataRouteImport } from './routes/data'
 import { Route as BeritaRouteImport } from './routes/berita'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -52,6 +53,11 @@ const LayananRoute = LayananRouteImport.update({
 const KontakRoute = KontakRouteImport.update({
   id: '/kontak',
   path: '/kontak',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KinerjaRoute = KinerjaRouteImport.update({
+  id: '/kinerja',
+  path: '/kinerja',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DataRoute = DataRouteImport.update({
@@ -160,6 +166,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/berita': typeof BeritaRoute
   '/data': typeof DataRoute
+  '/kinerja': typeof KinerjaRoute
   '/kontak': typeof KontakRoute
   '/layanan': typeof LayananRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
@@ -186,6 +193,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/berita': typeof BeritaRoute
   '/data': typeof DataRoute
+  '/kinerja': typeof KinerjaRoute
   '/kontak': typeof KontakRoute
   '/layanan': typeof LayananRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
@@ -213,6 +221,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/berita': typeof BeritaRoute
   '/data': typeof DataRoute
+  '/kinerja': typeof KinerjaRoute
   '/kontak': typeof KontakRoute
   '/layanan': typeof LayananRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
@@ -241,6 +250,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/berita'
     | '/data'
+    | '/kinerja'
     | '/kontak'
     | '/layanan'
     | '/reset-password'
@@ -267,6 +277,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/berita'
     | '/data'
+    | '/kinerja'
     | '/kontak'
     | '/layanan'
     | '/reset-password'
@@ -293,6 +304,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/berita'
     | '/data'
+    | '/kinerja'
     | '/kontak'
     | '/layanan'
     | '/reset-password'
@@ -320,6 +332,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   BeritaRoute: typeof BeritaRoute
   DataRoute: typeof DataRoute
+  KinerjaRoute: typeof KinerjaRoute
   KontakRoute: typeof KontakRoute
   LayananRoute: typeof LayananRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -369,6 +382,13 @@ declare module '@tanstack/react-router' {
       path: '/kontak'
       fullPath: '/kontak'
       preLoaderRoute: typeof KontakRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kinerja': {
+      id: '/kinerja'
+      path: '/kinerja'
+      fullPath: '/kinerja'
+      preLoaderRoute: typeof KinerjaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/data': {
@@ -530,6 +550,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   BeritaRoute: BeritaRoute,
   DataRoute: DataRoute,
+  KinerjaRoute: KinerjaRoute,
   KontakRoute: KontakRoute,
   LayananRoute: LayananRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,

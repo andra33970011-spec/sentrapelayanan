@@ -9,6 +9,7 @@ const navItems = [
   { to: "/", label: "Beranda" },
   { to: "/layanan", label: "Layanan" },
   { to: "/data", label: "Data Terpadu" },
+  { to: "/kinerja", label: "Kinerja OPD" },
   { to: "/berita", label: "Berita" },
   { to: "/tentang", label: "Tentang" },
   { to: "/kontak", label: "Kontak" },
