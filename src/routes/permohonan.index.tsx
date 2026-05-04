@@ -100,3 +100,34 @@ function ListPage() {
     </PageShell>
   );
 }
+
+function FragmentRow({ p }: { p: Row }) {
+  return (
+    <>
+      <tr className="border-t border-border hover:bg-surface/60">
+        <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{p.kode}</td>
+        <td className="px-4 py-3">
+          <div className="font-medium text-foreground">{p.judul}</div>
+          <div className="text-xs text-muted-foreground">{p.kategori}</div>
+        </td>
+        <td className="px-4 py-3 text-foreground">{p.opd?.singkatan ?? "-"}</td>
+        <td className="px-4 py-3">
+          <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs font-medium ${STATUS_TONE[p.status]}`}>
+            {STATUS_LABEL[p.status]}
+          </span>
+        </td>
+        <td className="px-4 py-3 text-xs text-muted-foreground">{fmtTanggal(p.tanggal_masuk)}</td>
+      </tr>
+      {p.status === "selesai" && (
+        <tr className="border-t border-border bg-surface/40">
+          <td colSpan={5} className="px-4 py-4">
+            <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-primary">
+              <Star className="h-3.5 w-3.5" /> Layanan selesai — beri penilaian Anda
+            </div>
+            <RatingForm permohonanId={p.id} />
+          </td>
+        </tr>
+      )}
+    </>
+  );
+}
